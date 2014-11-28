@@ -12,6 +12,8 @@
 	border: 1px solid silver;
 	background-color: #FFF;
 	height:200px;
+    display: inline-block;
+    width: 200px;
 }
 
 .megalist ul,
@@ -78,7 +80,7 @@
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1e5799', endColorstr='#3297e5',GradientType=0 ); /* IE6-9 */
 }
 
-.megalist #scrollbar {
+.megalist .scrollbar {
 	position:absolute;
 	background-color: black;
 	background-color: rgba(0,0,0,0.5);

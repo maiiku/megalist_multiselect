@@ -26,7 +26,7 @@
         var self = this;
         
         //params used in detecting "click" action - without collision of DOM events            
-        this.MAX_CLICK_DURATION_MS = 350;
+        this.MAX_CLICK_DURATION_MS = 1111350;
         this.MAX_MOUSE_POSITION_FLOAT_PX = 10;
         this.MAX_TOUCH_POSITION_FLOAT_PX = 10;
         
@@ -34,15 +34,21 @@
         this.SCROLLBAR_MIN_SIZE = 10;
                 
         this.RESIZE_TIMEOUT_DELAY = 100;
-        
+
+        //functional suffixes for miltiselect
+        this.DESTINATION_SUFFIX = 'dst';
+        this.SOURCE_SUFFIX = 'src';
+        this.MOVE_ACTION_NAME = 'move';
+
         this.processedItems = {};
         this.totalItems = [];
         this.itemHeight = -1;
             
         this.touchSupported = ("onorientationchange" in window);
+        this.touchSupported = false;
         this.$el = $(element);
         this.$ul = this.$el.find( "ul" );
-        this.$scrollbar = $("<div id='scrollbar'></div>");
+        this.$scrollbar = $("<div id='" + this.$el.attr('id') + "_scrollbar' class='scrollbar'></div>");
         
         if ( this.$ul.length <= 0 ) {
             this.$ul = $("<ul />");
@@ -60,6 +66,7 @@
             $(this).addClass("megalistItem");
             $(this).remove();
         });
+        this.dataProvider = this.getDataFromLi(this.dataProvider);
         
         this.$ul.css( "visibility", "visible" );
         this.$el.attr( "tabindex", "-1" ); // Set tabindex, so the element can be in focus
@@ -74,7 +81,7 @@
         this.touchStartHandler = function( event ) { return self.onTouchStart(event); };
         this.touchMoveHandler = function( event ) { return self.onTouchMove(event); };
         this.touchEndHandler = function( event ) { return self.onTouchEnd(event); };
-        
+
         this.TOUCH_START = this.touchSupported ? "touchstart" : "mousedown";
         this.TOUCH_MOVE = this.touchSupported ? "touchmove" : "mousemove";
         this.TOUCH_END = this.touchSupported ? "touchend" : "mouseup";
@@ -103,7 +110,34 @@
         this.inputCoordinates = null;
         this.velocity = {distance:0, lastTime:0, timeDelta:0};
     },
-    
+
+    getTargetIfExists: function() {
+        var tmp, suffix, target = '';
+
+        tmp = this.mid.split('_');
+        suffix = tmp.pop();
+        tmp = tmp.join('_');
+        if (suffix == this.SOURCE_SUFFIX){
+            target = tmp + '_' + this.DESTINATION_SUFFIX
+        } else if (suffix == this.DESTINATION_SUFFIX){
+            target = tmp + '_' +this.SOURCE_SUFFIX
+        }
+        if ($.inArray(target, this.mlists) > -1){
+            return target;
+        } else {
+            return false;
+        }
+
+    },
+
+    getDataFromLi: function(elems){
+        var out_data = [];
+        elems.each( function(i) {
+            out_data.push('{"listValue":"' + $(this).attr('list-value') + '", "label":"' +$(this).text()  + '" }');
+        });
+        return out_data;
+    },
+
     getVendorPrefix: function() {
         //vendor prefix logic from http://lea.verou.me/2009/02/find-the-vendor-prefix-of-the-current-browser/
         var regex = /^(Moz|Webkit|Khtml|O|ms|Icab)(?=[A-Z])/;
@@ -152,7 +186,7 @@
         this.cleanupEventHandlers();
         
         this.$el.unbind( this.TOUCH_START, this.touchStartHandler );
-        $(document).bind( this.TOUCH_MOVE, this.touchMoveHandler );
+        //$(document).bind( this.TOUCH_MOVE, this.touchMoveHandler );
         $(document).bind( this.TOUCH_END, this.touchEndHandler );
         
         this.updateVelocity( 0 );
@@ -216,6 +250,7 @@
         if ( !this.$el.is(':focus') ) return;
 
         var delta = 0;
+        var action = 'change';
         switch (event.which) {
             case 33: delta = -1 * Math.floor(this.$el.height() / this.itemHeight); break;  // Page up
             case 34: delta = Math.floor(this.$el.height() / this.itemHeight); break;       // Page down
@@ -242,12 +277,17 @@
 
         var target = this.$ul.find('.megalistSelected');
 
-        // Trigger the change
+        if (this.targetList !== false){
+            action = this.MOVE_ACTION_NAME
+        }
         setTimeout( function() {
-                var data = { selectedIndex: index, 
-                             srcElement: $(target), 
-                             item: self.dataProvider[index]  };
-                var e = jQuery.Event("change", data);
+                var data = {
+                    selectedIndex: index,
+                    srcElement: $(target),
+                    item: self.dataProvider[index],
+                    destination: self.targetList
+                };
+                var e = jQuery.Event(action, data);
                 self.$el.trigger( e );
             }, 150 );
 
@@ -289,6 +329,8 @@
     },
     
     detectClickEvent: function(event) {
+        var action = 'change';
+        var targetList;
         var target = event.target;
         while ( target.parentNode != undefined ) {
             if ( target.nodeName  === "LI" ) {
@@ -324,14 +366,31 @@
                     //does not block the UI from updating the selected row
                     //this is particularly an issue on mobile devices
                     var self = this;
-                    setTimeout( function() {
-                            var data = { selectedIndex: index, 
-                                         srcElement: $(target), 
-                                         item: self.dataProvider[index]  };
-                            var e = jQuery.Event("change", data);
-                            self.$el.trigger( e );
-                        }, 150 );
-                        
+                    if (this.targetList !== false){
+                        action = this.MOVE_ACTION_NAME
+                    }
+                    var out_data = self.dataProvider[index]
+                    if (action == this.MOVE_ACTION_NAME){
+                        targetList = $('#' + self.targetList).megalist('updateDataProvider', out_data);
+                        self.clearSelectedIndex();
+                        self.dataProvider.splice(index, 1);
+                        self.updateLayout();
+
+
+
+
+                    } else {
+                        setTimeout( function() {
+                                var data = {
+                                    selectedIndex: index,
+                                    srcElement: $(target),
+                                    item: self.dataProvider[index],
+                                    destination: self.targetList
+                                };
+                                var e = jQuery.Event(action, data);
+                                self.$el.trigger( e );
+                            }, 150 );
+                    }
                     return true;
                 }
             }
@@ -359,10 +418,10 @@
         //cleanup totalItems array
         var temp = [];
         if ( this.processedItems ) {
-			for ( index in this.processedItems)
-			{
-				temp.push( this.processedItems[ index ] );
-			}
+            for ( index in this.processedItems)
+            {
+                temp.push( this.processedItems[ index ] );
+            }
         }
         this.totalItems = temp;
         
@@ -415,6 +474,7 @@
                     this.$ul.append( item );
                     
                     if ( this.itemHeight <= 0 ) {
+                        item.html('&nsbp;')
                         this.$el.append( this.$ul );
                         this.itemHeight = item.outerHeight();
                         this.updateLayout();
@@ -428,7 +488,13 @@
             if ( ignoreScrollbar !== true ) {
                 this.updateScrollBar();
             }
-            this.$scrollbar.before( this.$ul );
+            if (this.$scrollbar.parent().length > 0){
+                this.$scrollbar.before( this.$ul );
+            }else{
+                 this.$el.append( this.$ul )
+            }
+        }else{
+            this.$ul.empty();
         }
     },
     
@@ -454,7 +520,7 @@
         
         if ((this.dataProvider.length * this.itemHeight) <= this.$el.height() ) {
             if ( parent.length > 0 ) {
-                this.$scrollbar.remove();
+                this.$scrollbar.detach();
             }
         }
         else {
@@ -605,12 +671,25 @@
                 this.listItems[ iString ] = item;
             }
             else {
-                item = this.listItems[ i ];
+                item = $(this.listItems[ i ]);
             }
             if ( i >= 0 && i < this.dataProvider.length ){
                 var data = this.dataProvider[i];
                 var label =  this.labelFunction ? this.labelFunction( data ) : data.toString();
-                item.html( label );
+                try{
+                  var jdata = jQuery.parseJSON(label);
+                } catch(e){
+                  //not json
+                   var jdata = '';
+                }
+                if (jdata != ""){
+                    item.html( jdata.label );
+                    item.attr( "list-value", jdata.listValue );
+                } else {
+                    item.html( label );
+                }
+
+
             }
         }
         if ( item !== null && item !== undefined ) {
@@ -630,7 +709,26 @@
         this.yPosition = 0;
         this.updateLayout();
     },
-    
+
+    updateDataProvider: function( newElement) {
+        this.clearSelectedIndex();
+        this.dataProvider.push(newElement);
+
+
+        this.$ul.find("li").each( function(i) {
+            $(this).remove();
+        });
+
+        this.yPosition = 0;
+        this.itemHeight  = 0;
+        this.updateLayout();
+    },
+
+    getDataProvider: function(  ) {
+        return this.dataProvider;
+
+    },
+
     setLabelFunction: function( labelFunction ) {
         this.labelFunction = labelFunction;
         this.updateLayout();
@@ -710,10 +808,17 @@
    * ========================== */
 
   $.fn.megalist = function ( option, params ) {
+    // make magalists aware of each other
+    var mlists = $('div.megalist').map(function() {
+      return this.id;
+    }).get();
     return this.each(function () {
       var $this = $(this), data = $this.data('list');
       if (!data) { $this.data('list', (data = new Megalist(this))); }
-      if (typeof option === 'string') { data[option](params); }
+      data['mlists'] = mlists;
+      data['mid'] = this.id;
+      data['targetList'] = data.getTargetIfExists();
+      if (typeof option === 'string') { this.result = data[option](params); }
     });
   };
 
