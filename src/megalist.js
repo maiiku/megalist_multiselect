@@ -49,13 +49,13 @@
         this.$el = $(element);
         this.$ul = this.$el.find( "ul" );
         this.$scrollbar = $("<div id='" + this.$el.attr('id') + "_scrollbar' class='scrollbar'></div>");
-        
+        this.$moveall = $("<button class='moveall'>move all</button>");;
         if ( this.$ul.length <= 0 ) {
             this.$ul = $("<ul />");
             this.$el.append( this.$ul );
         }
         this.$el.append( this.$scrollbar );
-        
+        this.$el.after( this.$moveall );
         this.dataProvider = this.$ul.find( "li" );
         this.listItems = (this.dataProvider.length > 0) ? this.dataProvider : $();
         
@@ -81,6 +81,7 @@
         this.touchStartHandler = function( event ) { return self.onTouchStart(event); };
         this.touchMoveHandler = function( event ) { return self.onTouchMove(event); };
         this.touchEndHandler = function( event ) { return self.onTouchEnd(event); };
+        this.moveAllHandler = function( event ) { return self.onMoveAll(event); };
 
         this.TOUCH_START = this.touchSupported ? "touchstart" : "mousedown";
         this.TOUCH_MOVE = this.touchSupported ? "touchmove" : "mousemove";
@@ -91,6 +92,7 @@
         this.$el.bind( "gesturestart", function( event ) { event.preventDefault(); return false;} );
         this.$el.bind( this.TOUCH_START, this.touchStartHandler );
         this.$el.bind( this.MOUSE_WHEEL, function( event ) { event.preventDefault();  return self.onMouseWheel(event); } );
+        this.$moveall.bind( this.TOUCH_START, function( event ) { event.preventDefault();  return self.moveAllHandler(event); } );
 
         $(window).bind( "keydown", function( event ) { return self.onKeydown(event); } );
         
@@ -397,7 +399,26 @@
         }
         return false;
     },
-    
+
+    onMoveAll: function(event){
+        var action = "change";
+        if (this.targetList !== false){
+            action = this.MOVE_ACTION_NAME
+        }
+        var out_data = this.dataProvider;
+        if (action == this.MOVE_ACTION_NAME){
+            $('#' + this.targetList).megalist('updateDataProvider', out_data);
+            this.clearSelectedIndex();
+            this.dataProvider = [];
+            this.updateLayout();
+        }else{
+            return false;
+        }
+
+        return true;
+
+    },
+
     cleanupEventHandlers: function() {
         $(document).unbind( this.TOUCH_MOVE, this.touchMoveHandler );
         $(document).unbind( this.TOUCH_END, this.touchEndHandler );
@@ -494,7 +515,13 @@
                  this.$el.append( this.$ul )
             }
         }else{
-            this.$ul.empty();
+            if(this.$ul.children().length > 0){
+                this.$ul.empty();
+                 this.cleanupListItems(true);
+                if (( ignoreScrollbar !== true ) && (this.$scrollbar.parent().length > 0)) {
+                    this.updateScrollBar();
+                }
+            }
         }
     },
     
@@ -712,7 +739,11 @@
 
     updateDataProvider: function( newElement) {
         this.clearSelectedIndex();
-        this.dataProvider.push(newElement);
+        if( $.isArray(newElement )){
+            $.merge(this.dataProvider,newElement);
+        }else{
+            this.dataProvider.push(newElement);
+        }
 
 
         this.$ul.find("li").each( function(i) {
