@@ -36,7 +36,7 @@ Demo multiselect Created With A DataProvider of 100,000 items:
  </tr>
  <tr>
    <td>.megalist('setLabelFunction', labelFunction)</td>
-   <td>Sets the function to be used to build list element from provided data. If not set JSON is assumed to contain ```label``` and ```listValue``` for multiselect elements names and values</td>
+   <td>Sets the function to be used to build list element from provided data. If not set JSON is assumed to contain `label` and `listValue` for multiselect elements names and values</td>
  </tr>
  <tr>
    <td>.megalist('setSelectedIndex', index)</td>
