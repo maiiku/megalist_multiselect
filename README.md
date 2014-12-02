@@ -32,11 +32,11 @@ Demo multiselect Created With A DataProvider of 100,000 items:
  </tr>
  <tr>
    <td>.megalist('setDataProvider', dataProviderArray)</td>
-   <td>Initializes a list component.</td>
+   <td>Sets the data provider function that should return (data source) JSON array for the list instance.  There is no concrete limit on the length of the data provider array.</td>
  </tr>
  <tr>
    <td>.megalist('setLabelFunction', labelFunction)</td>
-   <td>Sets the data provider array for the list instance.  There is no concrete limit on the length of the data provider array.  Elements within the array can be of primitive or complex types.</td>
+   <td>Sets the function to be used to build list element from provided data. If not set JSON is assumed to contain ```label``` and ```listValue``` for multiselect elements names and values</td>
  </tr>
  <tr>
    <td>.megalist('setSelectedIndex', index)</td>
@@ -49,8 +49,17 @@ Demo multiselect Created With A DataProvider of 100,000 items:
  <tr>
    <td>.megalist('clearSelectedIndex', index)</td>
    <td>Clears the currently selected item in the list.</td>
- </tr>
-</table>    
+</tr>
+<tr>
+   <td>.megalist('updateDataProvider', newElement)</td>
+   <td>Adds new elements to the list - accpets isngle JSON object or array of objects.</td>
+</tr>
+<tr>
+   <td>.megalist('getDataProvider', newElement)</td>
+   <td>Returns current element list as array of JSON objects.</td>
+</tr>
+
+</table>
 
 ### Events
 Megalist exposes a change event for handling when the selected item in the list changes.
