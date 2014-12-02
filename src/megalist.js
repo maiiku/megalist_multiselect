@@ -11,13 +11,11 @@
           this.$el = null;
         this.init( element );
     };
-      
-      
+
 
   Megalist.prototype = {
   
     animating: false,
-
     constructor: Megalist,
     
     init: function ( element ) {
@@ -35,10 +33,11 @@
                 
         this.RESIZE_TIMEOUT_DELAY = 100;
 
-        //functional suffixes for miltiselect
+        //functional suffixes for multiselect
         this.DESTINATION_SUFFIX = 'dst';
         this.SOURCE_SUFFIX = 'src';
         this.MOVE_ACTION_NAME = 'move';
+        this.CHANGE_ACTION_NAME = 'change';
 
         this.processedItems = {};
         this.totalItems = [];
@@ -684,15 +683,6 @@
         else if ( i !== undefined ){
             var iString = i.toString();
            
-            /*
-            if ( this.listItems[ iString ] === null || this.listItems[ iString ] === undefined ) {
-                for ( var j = 0; j< 200; j++ ) {
-                    var index = (j+i);
-                    this.listItems[ index.toString() ] = $("<li class='megalistItem' />");
-                }
-            }
-            item = this.listItems[ iString ];
-            */
             if ( this.listItems[ iString ] === null || this.listItems[ iString ] === undefined ) {
                 item = $("<li class='megalistItem' />");
                 this.listItems[ iString ] = item;

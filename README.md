@@ -1,29 +1,18 @@
-MegaList
-========
+MegaList Multiselect
+====================
 
 ## Introduction
 
-Megalist is a jQuery plugin that creates a touch-enabled list component, capable of very large datasets, complete with data virtualization.   It was originally intended for touch-enabled devices, however it also works in many desktop browsers.
+megalist_multiselect is a jQuery multi-select plugin based on MegaList by @triceam. It creates a two list components - one with source list, other with selected items. Plugin is capable of very large datasets unlike as it does not render all elements of the list.
 
 For performance optimizations, the list component uses data virtualization techniques, so there are never more list elements in the HTML DOM than what is currently visible on the screen. As the user scrolls through content, the list updates the DOM elements accordingly. This makes scrolling lists of thousands of items extremely fluid.
 
-There are two methods that the list component can be used.  One option is to declare the list structure in HTML markup, another option is to specify a dataProvider array, from which the list will create DOM elements.
+There are two methods that the list component can be used.  One option is to declare the list structure in HTML markup, another option is to specify a dataProvider JSON array, from which the list will create DOM elements.
     
-## Samples    
-    
-View the "samples" directory to see the scrollable list component in action.  All samples are interactive, and scrollable via touch or mouse events, with function event handlers.
+Demo multiselect Created With A DataProvider of 100,000 items:
+* [View Sample](http://maiiku.github.io/megalist_multiselect/samples/01_megalist_multiselect_demo.html)
+* [View Source](https://github.com/maiiku/megalist_mutiselect/blob/master/samples/01_megalist_multiselect_demo.html)
 
-Simple List Created With Inline LI elements
-* [View Sample](http://triceam.github.com/MegaList/bin/samples/01%20-%20simple%20inline%20data.html)
-* [View Source](https://github.com/triceam/MegaList/blob/master/samples/01%20-%20simple%20inline%20data.html)
-
-Simple List Created With A DataProvider of 100,000 items:
-* [View Sample](http://triceam.github.com/MegaList/bin/samples/02%20-%20simple%20dataprovider.html)
-* [View Source](https://github.com/triceam/MegaList/blob/master/samples/02%20-%20simple%20dataprovider.html)
-
-Styled Dynamic List Created With Remote Data:
-* [View Sample](http://triceam.github.com/MegaList/bin/samples/03%20-%20styled%20list.html)
-* [View Source](https://github.com/triceam/MegaList/blob/master/samples/03%20-%20styled%20list.html)
       
 ## API   
 
