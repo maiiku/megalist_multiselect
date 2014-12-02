@@ -82,4 +82,8 @@ Megalist exposes a change event for handling when the selected item in the list 
     <strong>event.item</strong>
     A reference to the data item for the list item.  If using inline &lt;li&gt; in markup, this will be the same DOM element as event.srcElement.  If using a dataProvider, it will be the object in the dataProvider array corresponding to the selected list item.</td>
  </tr>
+  <tr>
+   <td>move</td>
+   <td>This event is fired when item is clicked and destination list is present. It sends the selected item to destination list, updating both lists in process.
+ </tr>
 </table>
