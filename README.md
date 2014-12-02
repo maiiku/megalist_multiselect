@@ -11,7 +11,7 @@ There are two methods that the list component can be used.  One option is to dec
     
 Demo multiselect Created With A DataProvider of 100,000 items:
 * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/01_megalist_multiselect_demo.html)
-* [View Source](https://github.com/maiiku/megalist_mutiselect/blob/master/samples/01_megalist_multiselect_demo.html)
+* [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/01_megalist_multiselect_demo.html)
 
       
 ## API   
