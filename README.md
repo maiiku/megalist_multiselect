@@ -3,7 +3,7 @@ MegaList Multiselect
 
 ## Introduction
 
-megalist_multiselect is a jQuery multi-select plugin based on MegaList by @triceam. It creates a two list components - one with source list, other with selected items. Plugin is capable of very large datasets unlike as it does not render all elements of the list.
+megalist_multiselect is a jQuery multi-select plugin based on [MegaList by triceam](https://github.com/triceam/MegaList). It creates a two list components - one with source list, other with selected items. Plugin is capable of very large datasets unlike as it does not render all elements of the list.
 
 For performance optimizations, the list component uses data virtualization techniques, so there are never more list elements in the HTML DOM than what is currently visible on the screen. As the user scrolls through content, the list updates the DOM elements accordingly. This makes scrolling lists of thousands of items extremely fluid.
 
