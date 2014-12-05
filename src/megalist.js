@@ -20,6 +20,8 @@
 
         this.RESIZE_TIMEOUT_DELAY = 100;
 
+        this.MINIMUM_SEARCH_QUERY_SIZE = 3;
+
         //functional suffixes for multiselect
         this.DESTINATION_SUFFIX = 'dst';
         this.SOURCE_SUFFIX = 'src';
@@ -106,7 +108,7 @@
 
         this.$search.on('keyup', function() {
             self.yPosition = 0;
-            self.filterElements();
+            self.filterList();
         });
     },
 
@@ -301,7 +303,7 @@
             self.dataProviderOrig.splice(
                 self.dataProviderOrig.indexOf(clicked_value), 1
             );
-            self.filterElements();
+            self.filterList();
 
         } else {
             setTimeout(function() {
@@ -712,41 +714,50 @@
         return false;
     },
 
-    filterElements: function() {
-        var searchTokens = this.$search.val().trim().split(' '),
-            i, valI, tokenIndex, tokI;
+    filterList: function() {
+        var self = this,
+            searchQuery = this.$search.val().trim(),
+            searchTokens = searchQuery.split(' '),
+            isQueryValid = searchQuery.length < this.MINIMUM_SEARCH_QUERY_SIZE,
+            i;
+
         for (i = searchTokens.length - 1; i >= 0; i--) {
             searchTokens[i] = searchTokens[i].trim();
         }
 
-        if (searchTokens[0] === '') {
+        if (isQueryValid) {
             this.dataProvider = this.dataProviderOrig;
 
         } else {
             this.dataProvider = $.grep(
                 this.dataProviderOrig,
                 function(val) {
-                    val = val.label;
-                    tokenIndex = 0;
-                    valI = 0;
-                    while (valI < val.length) {
-                        if (val[valI++] === searchTokens[tokenIndex][0]) {
-                            for (tokI = 1; tokI < searchTokens[tokenIndex].length; tokI++) {
-                                if (val[valI++] !== searchTokens[tokenIndex][tokI]) {
-                                    return false;
-                                }
-                            }
-                            if (++tokenIndex === searchTokens.length) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
+                    return self.testListElement(val, searchTokens);
                 }
             );
         }
 
         this.updateLayout();
+    },
+
+    testListElement: function(val, searchTokens) {
+        var tokenIndex = 0,
+            valI = 0,
+            i;
+        val = val.label;
+        while (valI < val.length) {
+            if (val[valI++] === searchTokens[tokenIndex][0]) {
+                for (i = 1; i < searchTokens[tokenIndex].length; i++) {
+                    if (val[valI++] !== searchTokens[tokenIndex][i]) {
+                        return false;
+                    }
+                }
+                if (++tokenIndex === searchTokens.length) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
   };
