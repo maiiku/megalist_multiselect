@@ -10,11 +10,11 @@
     <script src="../lib/jquery-1.7.1.js"></script>
     <script src="../src/megalist.js"></script>
     <link href="../src/megalist.css" rel="stylesheet" type="text/css" >
-    
+
     <link href="../lib/google-code-prettify/prettify.css" rel="stylesheet">
     <script src="../lib/google-code-prettify/prettify.js"></script>
     <script src="../lib/raf.js"></script>
-      
+
     <script>
         $(document).ready( function() {
             $('.megalist').megalist();
@@ -24,13 +24,16 @@
         function createDataProvider() {
             var result = [];
             for ( var x=0; x<100000; x++ ) {
-                result.push('{"label": "item ' + x + '", "list-value": "'+x+'"}');
+                result.push({
+                  'label': 'item ' + x,
+                  'list-value': x
+                });
             }
             return result;
         }
 
     </script>
-      
+
   </head>
 
   <body >
@@ -54,7 +57,10 @@
         function createDataProvider() {
             var result = [];
             for ( var x=0; x<100000; x++ ) {
-                result.push('{"label": "item ' + x + '", "list-value": "'+x+'"}');
+                result.push({
+                  'label': 'item ' + x,
+                  'list-value': x
+                });
             }
             return result;
         }
