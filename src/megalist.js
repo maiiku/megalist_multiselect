@@ -662,12 +662,12 @@
              self.onScrollbarMove(event);
         });
 
+        $(window).bind('mouseup', function(event) {
+             self.unbindScrollbarEvents();
+        });
+
         event.preventDefault();
         return false;
-    },
-
-    unbindScrollbarEvents: function() {
-        $(window).unbind('mousemove');
     },
 
     onScrollbarMove: function(event) {
@@ -712,6 +712,11 @@
 
         event.preventDefault();
         return false;
+    },
+
+    unbindScrollbarEvents: function() {
+        $(window).unbind('mousemove');
+        $(window).unbind('mouseup');
     },
 
     filterList: function() {
