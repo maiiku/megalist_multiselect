@@ -18,22 +18,7 @@
     <script>
         $(document).ready( function() {
             $('.megalist').megalist();
-            $('#myList_src').megalist('setDataProvider', createDataProvider(0));
-            $('#myList_dst').megalist('setDataProvider', createDataProvider(1));
-
         });
-        function createDataProvider(offset) {
-            var result = [],
-                quantity = 50000;
-            for (x = quantity * offset; x < quantity * (offset + 1); x++) {
-                result.push({
-                  'label': 'item ' + x,
-                  'list-value': x
-                });
-            }
-            return result;
-        }
-
     </script>
 
   </head>
@@ -42,8 +27,50 @@
 
       <h3>Megalist Multiselct Demo</h3>
       <p>This list has 100k items as generated json array:</p>
-      <div class="megalist" id="myList_src" ></div>
-      <div class="megalist" id="myList_dst" ></div>
+      <input id="my_megalist_data_src" type="text" style="display: none" value="[
+        {
+            label: 'item 1',
+            value: 1
+        },
+        {
+            label: 'item 2',
+            value: 2
+        },
+        {
+            label: 'item 3',
+            value: 3
+        },
+        {
+            label: 'item 4',
+            value: 4
+        }
+      ]">
+
+      <input id="my_megalist_data_dst" type="text" style="display: none" value="[
+        {
+            label: 'item 5',
+            value: 5
+        },
+        {
+            label: 'item 6',
+            value: 6
+        },
+        {
+            label: 'item 7',
+            value: 7
+        },
+        {
+            label: 'item 8',
+            value: 8
+        },
+        {
+            label: 'item 9',
+            value: 9
+        }
+      ]">
+
+      <div id="my_megalist_src" class="megalist"></div>
+      <div id="my_megalist_dst" class="megalist"></div>
       <p>First create the HTML Structure, then instantiate the list via javascript, and add an event handler:</p>
       <h4>Markup</h4>
       <pre class="prettyprint linenums">
@@ -53,22 +80,7 @@
       <h4>Script</h4>
       <pre class="prettyprint linenums">        $(document).ready( function() {
             $('.megalist').megalist();
-            $('#myList_src').megalist('setDataProvider', createDataProvider(0));
-            $('#myList_dst').megalist('setDataProvider', createDataProvider(1));
         });
-
-        function createDataProvider(offset) {
-            var result = [],
-                quantity = 50000;
-            for (x = quantity * offset; x < quantity * (offset + 1); x++) {
-                result.push({
-                  'label': 'item ' + x,
-                  'list-value': x
-                });
-            }
-            return result;
-        }
       </pre>
-
   </body>
 </html>

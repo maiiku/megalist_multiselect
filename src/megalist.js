@@ -15,6 +15,8 @@
     constructor: Megalist,
 
     init: function (element) {
+        var id_tokens, lastToken;
+
         this.SCROLLBAR_BORDER = 1;
         this.SCROLLBAR_MIN_SIZE = 10;
 
@@ -31,7 +33,7 @@
         this.totalItems = [];
         this.itemHeight = -1;
         this.listItems = $();
-
+        this.suffix = undefined;
         this.inputCoordinates = null;
         this.velocity = {distance:0, lastTime:0, timeDelta:0};
         this.yPosition = 0;
@@ -40,7 +42,24 @@
         this.dataProviderOrig = this.dataProvider;
 
         this.buildDOM(element);
+
+        id_tokens = this.$el.attr('id').split('_');
+        lastToken = id_tokens[id_tokens.length - 1];
+        this.name = id_tokens.splice(id_tokens, id_tokens.length-1).join('_');
+
+        if (lastToken === this.SOURCE_SUFFIX) {
+            this.suffix = this.SOURCE_SUFFIX;
+        } else if (lastToken === this.DESTINATION_SUFFIX) {
+            this.suffix = this.DESTINATION_SUFFIX;
+        } else {
+            console.log(
+                'Ids of multiselect widget elements must end with' +
+                '"_src" or "_dst"'
+            );
+        }
+
         this.bindEvents();
+        this.bindData();
         this.updateLayout();
     },
 
@@ -69,6 +88,7 @@
         this.$el.after(this.$moveall);
 
         this.$ul.css('visibility', 'visible');
+
         // Set tabindex, so the element can be in focus
         this.$el.attr('tabindex', '-1');
 
@@ -112,23 +132,35 @@
         });
     },
 
-    getTargetIfExists: function() {
-        var tmp, suffix, target = '';
+    bindData: function() {
+        var selector = '#' + this.name + '_data_' + this.suffix;
+        this.dataProviderOrig = eval($(selector).val());
 
-        tmp = this.mid.split('_');
-        suffix = tmp.pop();
-        tmp = tmp.join('_');
-        if (suffix == this.SOURCE_SUFFIX) {
-            target = tmp + '_' + this.DESTINATION_SUFFIX;
-        } else if (suffix == this.DESTINATION_SUFFIX) {
-            target = tmp + '_' +this.SOURCE_SUFFIX;
+        this.dataProvider = this.dataProviderOrig;
+
+        this.clearSelectedIndex();
+
+        this.$ul.find('li').each(function() {
+            $(this).remove();
+        });
+
+        this.yPosition = 0;
+        this.updateLayout();
+    },
+
+    getTargetIfExists: function() {
+        var target = '';
+
+        if (this.suffix === this.SOURCE_SUFFIX) {
+            target = this.name + '_' + this.DESTINATION_SUFFIX;
+        } else if (this.suffix === this.DESTINATION_SUFFIX) {
+            target = this.name + '_' + this.SOURCE_SUFFIX;
         }
         if ($.inArray(target, this.mlists) > -1) {
             return target;
         } else {
             return false;
         }
-
     },
 
     onResize: function() {
@@ -555,7 +587,7 @@
     },
 
     getItemAtIndex: function(i) {
-        var item, iString, data, label, jdata;
+        var item, iString, data, label, jdata, value;
         if (this.dataProvider === this.listItems) {
             item = $(this.listItems[i]);
         }
@@ -574,6 +606,7 @@
             if (i >= 0 && i < this.dataProvider.length){
                 data = this.dataProvider[i];
                 label = data.label;
+                value = data.listValue;
                 try {
                   jdata = $.parseJSON(label);
                 } catch(e) {
@@ -586,6 +619,7 @@
                     item.attr('list-value', jdata.listValue);
                 } else {
                     item.html(label);
+                    item.attr('list-value', value);
                 }
             }
         }
@@ -593,19 +627,6 @@
             item.attr('list-index', i);
         }
         return item;
-    },
-
-    setDataProvider: function(dataProvider) {
-        this.clearSelectedIndex();
-        this.dataProviderOrig = dataProvider;
-        this.dataProvider = dataProvider;
-
-        this.$ul.find('li').each(function() {
-            $(this).remove();
-        });
-
-        this.yPosition = 0;
-        this.updateLayout();
     },
 
     updateDataProvider: function(newElement) {
@@ -773,7 +794,20 @@
             }
         }
         return false;
+    },
+
+    generatePOST: function() {
+        var i, postData = [], result = {};
+        var name = this.mid+'[]'
+        if (this.suffix == this.DESTINATION_SUFFIX){
+            for (i = 0; i < this.dataProvider.length; i++) {
+                postData[i] =  this.dataProvider[i].listValue;
+            }
+        }
+        result[name] = postData;
+        return result;
     }
+
 
   };
 
