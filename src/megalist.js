@@ -322,7 +322,8 @@
 
     onMoveAll: function(){
         var action = 'change',
-            out_data = this.dataProvider;
+            out_data = this.dataProvider,
+            i;
         if (this.targetList !== false){
             action = this.MOVE_ACTION_NAME;
         }
@@ -330,6 +331,11 @@
             $('#' + this.targetList).megalist('updateDataProvider', out_data);
             this.clearSelectedIndex();
             this.dataProvider = [];
+            if (this.filteredData !== undefined) {
+                for (i = this.filteredData.length - 1; i >= 0; i--) {
+                    this.dataProviderOrig.splice(this.filteredData[i], 1)
+                };
+            }
             this.updateLayout();
             return true;
         } else{
@@ -339,7 +345,9 @@
 
     cleanupListItems: function() {
         //remove any remaining LI elements hanging out on the dom
-        var item, index, x;
+        var temp = [],
+            item, index, x;
+
         for (x = 0; x < this.totalItems.length; x++ ) {
             item = this.totalItems[x];
             index = item.attr('list-index');
@@ -348,7 +356,6 @@
             }
         }
         //cleanup totalItems array
-        var temp = [];
         if (this.processedItems) {
             for (index in this.processedItems) {
                 temp.push(this.processedItems[index]);
@@ -726,6 +733,8 @@
             isQueryValid = searchQuery.length < this.MINIMUM_SEARCH_QUERY_SIZE,
             i;
 
+        this.filteredData = [];
+
         for (i = searchTokens.length - 1; i >= 0; i--) {
             searchTokens[i] = searchTokens[i].trim();
         }
@@ -736,8 +745,8 @@
         } else {
             this.dataProvider = $.grep(
                 this.dataProviderOrig,
-                function(val) {
-                    return self.testListElement(val, searchTokens);
+                function(val, index) {
+                    return self.testListElement(val, searchTokens, index);
                 }
             );
         }
@@ -745,7 +754,7 @@
         this.updateLayout();
     },
 
-    testListElement: function(val, searchTokens) {
+    testListElement: function(val, searchTokens, index) {
         var tokenIndex = 0,
             valI = 0,
             i;
@@ -758,6 +767,7 @@
                     }
                 }
                 if (++tokenIndex === searchTokens.length) {
+                    this.filteredData[this.filteredData.length] = index;
                     return true;
                 }
             }

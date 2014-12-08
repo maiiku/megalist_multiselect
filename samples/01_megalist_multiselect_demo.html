@@ -18,12 +18,14 @@
     <script>
         $(document).ready( function() {
             $('.megalist').megalist();
-            $('#myList_src').megalist('setDataProvider', createDataProvider() );
+            $('#myList_src').megalist('setDataProvider', createDataProvider(0));
+            $('#myList_dst').megalist('setDataProvider', createDataProvider(1));
 
         });
-        function createDataProvider() {
-            var result = [];
-            for ( var x=0; x<100000; x++ ) {
+        function createDataProvider(offset) {
+            var result = [],
+                quantity = 50000;
+            for (x = quantity * offset; x < quantity * (offset + 1); x++) {
                 result.push({
                   'label': 'item ' + x,
                   'list-value': x
@@ -51,12 +53,14 @@
       <h4>Script</h4>
       <pre class="prettyprint linenums">        $(document).ready( function() {
             $('.megalist').megalist();
-            $('#myList_src').megalist('setDataProvider', createDataProvider() );
+            $('#myList_src').megalist('setDataProvider', createDataProvider(0));
+            $('#myList_dst').megalist('setDataProvider', createDataProvider(1));
         });
 
-        function createDataProvider() {
-            var result = [];
-            for ( var x=0; x<100000; x++ ) {
+        function createDataProvider(offset) {
+            var result = [],
+                quantity = 50000;
+            for (x = quantity * offset; x < quantity * (offset + 1); x++) {
                 result.push({
                   'label': 'item ' + x,
                   'list-value': x
