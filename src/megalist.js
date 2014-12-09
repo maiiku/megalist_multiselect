@@ -464,6 +464,7 @@
                 }
             }
         }
+        this.generatePOST();
     },
 
     updateScrollBar: function() {
@@ -646,7 +647,6 @@
         this.yPosition = 0;
         this.itemHeight = 0;
         this.updateLayout();
-        this.generatePOST();
     },
 
     getDataProvider: function() {
