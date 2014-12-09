@@ -17,7 +17,7 @@
 
     <script>
         $(document).ready( function() {
-            $('.megalist').megalist();
+            $('#my_megalist').megalist();
         });
     </script>
 
@@ -25,60 +25,87 @@
 
   <body >
 
-      <h3>Megalist Multiselct Demo</h3>
+      <h3>Megalist Multiselect Demo</h3>
       <p>This list has 100k items as generated json array:</p>
-      <input id="my_megalist_data_src" type="text" style="display: none" value="[
-        {
-            label: 'item 1',
-            value: 1
-        },
-        {
-            label: 'item 2',
-            value: 2
-        },
-        {
-            label: 'item 3',
-            value: 3
-        },
-        {
-            label: 'item 4',
-            value: 4
-        }
-      ]">
+      <div id="my_megalist">
+        <input id="my_megalist_data_src" type="text" value="[
+          {
+              label: 'item 1',
+              value: 1
+          },
+          {
+              label: 'item 2',
+              value: 2
+          },
+          {
+              label: 'item 3',
+              value: 3
+          },
+          {
+              label: 'item 4',
+              value: 4
+          },
+          {
+              label: 'item 5',
+              value: 5
+          },
+          {
+              label: 'item 6',
+              value: 6
+          },
+          {
+              label: 'item 7',
+              value: 7
+          },
+          {
+              label: 'item 8',
+              value: 8
+          }
+        ]">
 
-      <input id="my_megalist_data_dst" type="text" style="display: none" value="[
-        {
-            label: 'item 5',
-            value: 5
-        },
-        {
-            label: 'item 6',
-            value: 6
-        },
-        {
-            label: 'item 7',
-            value: 7
-        },
-        {
-            label: 'item 8',
-            value: 8
-        },
-        {
-            label: 'item 9',
-            value: 9
-        }
-      ]">
-
-      <div id="my_megalist_src" class="megalist"></div>
-      <div id="my_megalist_dst" class="megalist"></div>
+        <input id="my_megalist_data_dst" type="text" value="[
+          {
+              label: 'item 9',
+              value: 9
+          },
+          {
+              label: 'item 10',
+              value: 10
+          },
+          {
+              label: 'item 11',
+              value: 11
+          },
+          {
+              label: 'item 12',
+              value: 12
+          },
+          {
+              label: 'item 13',
+              value: 13
+          },
+          {
+              label: 'item 14',
+              value: 14
+          },
+          {
+              label: 'item 15',
+              value: 15
+          },
+          {
+              label: 'item 16',
+              value: 16
+          }
+        ]">
+      </div>
       <p>First create the HTML Structure, then instantiate the list via javascript, and add an event handler:</p>
       <h4>Markup</h4>
       <pre class="prettyprint linenums">
-          &lt;div class=&quot;megalist&quot; id=&quot;myList_src&quot; &gt;&lt;/div&gt;
-          &lt;div class=&quot;megalist&quot; id=&quot;myList_dst&quot; &gt;&lt;/div&gt;
+          ----
       </pre>
       <h4>Script</h4>
-      <pre class="prettyprint linenums">        $(document).ready( function() {
+      <pre class="prettyprint linenums">
+        $(document).ready( function() {
             $('.megalist').megalist();
         });
       </pre>

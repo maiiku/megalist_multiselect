@@ -5,16 +5,35 @@
  /* LIST CLASS DEFINITION
   * ========================= */
 
-  var Megalist = function (element) {
+  var Megalist = function(element) {
+        var srcElement, dstElement;
+
+        $('input[type=text]', element).hide();
+
+        srcElement = $(
+            '<div class="megalist-inner" id="' + element.attr('id') +
+            '_src"></div>'
+        ).appendTo(element);
+        dstElement = $(
+            '<div class="megalist-inner" id="' + element.attr('id') +
+            '_dst"></div>'
+        ).appendTo(element);
+
+        srcElement.megalistSide(srcElement);
+        dstElement.megalistSide(dstElement);
+    };
+
+
+  var MegalistSide = function(element) {
         this.$el = null;
         this.init(element);
     };
 
-  Megalist.prototype = {
+  MegalistSide.prototype = {
 
-    constructor: Megalist,
+    constructor: MegalistSide,
 
-    init: function (element) {
+    init: function(element) {
         var id_tokens, lastToken;
 
         this.SCROLLBAR_BORDER = 1;
@@ -22,7 +41,7 @@
 
         this.RESIZE_TIMEOUT_DELAY = 100;
 
-        this.MINIMUM_SEARCH_QUERY_SIZE = 3;
+        this.MINIMUM_SEARCH_QUERY_SIZE = 2;
 
         //functional suffixes for multiselect
         this.DESTINATION_SUFFIX = 'dst';
@@ -37,9 +56,7 @@
         this.inputCoordinates = null;
         this.velocity = {distance:0, lastTime:0, timeDelta:0};
         this.yPosition = 0;
-
-        this.dataProvider = [];
-        this.dataProviderOrig = this.dataProvider;
+        this.filteredData = [];
 
         this.buildDOM(element);
 
@@ -68,7 +85,7 @@
 
         this.$el = $(element);
 
-        this.$el.wrap('<div class="megalist-wrapper"></div>"');
+        this.$el.wrap('<div class="megalist"></div>"');
 
         this.$search = $(
             '<input type="text" id="' + this.$el.attr('id') +
@@ -135,6 +152,7 @@
 
     bindData: function() {
         var selector = '#' + this.name + '_data_' + this.suffix;
+
         this.dataProviderOrig = eval($(selector).val());
 
         this.dataProvider = this.dataProviderOrig;
@@ -329,7 +347,7 @@
         }
         if (action === this.MOVE_ACTION_NAME) {
             targetList = $('#' + self.targetList)
-                .megalist('updateDataProvider', out_data);
+                .megalistSide('updateDataProvider', out_data);
 
             self.clearSelectedIndex();
 
@@ -357,18 +375,19 @@
         var action = 'change',
             out_data = this.dataProvider,
             i;
+
         if (this.targetList !== false){
             action = this.MOVE_ACTION_NAME;
         }
         if (action === this.MOVE_ACTION_NAME) {
-            $('#' + this.targetList).megalist('updateDataProvider', out_data);
+            $('#' + this.targetList).megalistSide(
+                'updateDataProvider', out_data
+            );
             this.clearSelectedIndex();
             this.dataProvider = [];
-            if (this.filteredData !== undefined) {
-                for (i = this.filteredData.length - 1; i >= 0; i--) {
-                    this.dataProviderOrig.splice(this.filteredData[i], 1)
-                };
-            }
+            for (i = this.filteredData.length - 1; i >= 0; i--) {
+                this.dataProviderOrig.splice(this.filteredData[i], 1)
+            };
             this.updateLayout();
             return true;
         } else{
@@ -663,10 +682,11 @@
         this.clearSelectedIndex();
 
         if ($.isArray(newElement)) {
-            $.merge(this.dataProvider,newElement);
+            $.merge(this.dataProviderOrig, newElement);
         } else {
-            this.dataProvider.push(newElement);
+            this.dataProviderOrig.push(newElement);
         }
+        this.filterList();
 
         this.$ul.find('li').each(function() {
             $(this).remove();
@@ -866,9 +886,9 @@
   /* LIST PLUGIN DEFINITION
    * ========================== */
 
-  $.fn.megalist = function (option, params) {
+  $.fn.megalistSide = function (option, params) {
     // make magalists aware of each other
-    var mlists = $('div.megalist').map(function() {
+    var mlists = $('div.megalist-inner').map(function() {
         return this.id;
     }).get();
 
@@ -876,7 +896,7 @@
         var $this = $(this), data = $this.data('list');
 
         if (!data) {
-            $this.data('list', (data = new Megalist(this)));
+            $this.data('list', (data = new MegalistSide(this)));
         }
 
         data.mlists = mlists;
@@ -889,6 +909,11 @@
     });
   };
 
+  $.fn.megalist = function (option, params) {
+    new Megalist(this);
+  };
+
+  $.fn.megalistSide.Constructor = MegalistSide;
   $.fn.megalist.Constructor = Megalist;
 
 } (window.jQuery);
