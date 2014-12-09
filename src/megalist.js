@@ -588,6 +588,11 @@
         item.css('top', y);
     },
 
+     /**
+     * Gets megalist item at given index. Parses it to <li> item if necessary
+     * @param {int} i - object index
+     * @return {object} - jQuery object containing selected <li> element
+     */
     getItemAtIndex: function(i) {
         var item, iString, data, label, jdata, value;
         if (this.dataProvider === this.listItems) {
@@ -631,6 +636,29 @@
         return item;
     },
 
+    /**
+     * Sets initial data for megalist and updates layout with it
+     * @param {Array} dataProvider - object array to initaly feed megalist
+     */
+    setDataProvider: function(dataProvider) {
+        this.clearSelectedIndex();
+        this.dataProviderOrig = dataProvider;
+        this.dataProvider = dataProvider;
+
+        this.$ul.find('li').each(function() {
+            $(this).remove();
+        });
+
+        this.yPosition = 0;
+        this.updateLayout();
+    },
+
+    /**
+     * Updates megalist with new data. Accepts either a single object or
+     * an Array of objects and updates layout with new data
+     * @param {object|Array} newElement - new object / array of objects
+     *                                    to be inserted into the list
+     */
     updateDataProvider: function(newElement) {
         this.clearSelectedIndex();
 
@@ -649,6 +677,11 @@
         this.updateLayout();
     },
 
+     /**
+     * Returns current objects in megalist
+     * @return {Array} - list of objects in megalist
+     *
+     */
     getDataProvider: function() {
         return this.dataProvider;
     },
@@ -798,15 +831,28 @@
         return false;
     },
 
-    generatePOST: function() {
+    /**
+     * Generates string result of what is currently selected and populates
+     * this.$input value, adding it to DOM id necessary. Only does it for
+     * destination list. Result can be in 2 formats: POST-like (full) or comma
+     * separated
+     * @param {boolean} full - wherever to generate full POST-like data
+     * @return {string} result - string result of what is currently selected
+     */
+    generatePOST: function(full) {
         var i, postData = [], result = {};
         var name = this.mid+'[]';
         if (this.suffix == this.DESTINATION_SUFFIX){
             for (i = 0; i < this.dataProvider.length; i++) {
                 postData[i] =  this.dataProvider[i].listValue;
             }
-            result[name] = postData;
-            this.$input.val(decodeURIComponent($.param(result)));
+            if (full === true){
+                result[name] = postData;
+                this.$input.val(decodeURIComponent($.param(result)));
+            } else {
+                this.$input.val(postData.join(','));
+            }
+
             if (this.$el.has(this.$input).length < 1){
                 this.$el.append(this.$input);
             }
