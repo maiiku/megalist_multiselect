@@ -79,6 +79,7 @@
             '_scrollbar" class="scrollbar"></div>'
         );
         this.$moveall = $('<button class="moveall">move all</button>');
+        this.$input = $('<input type="hidden" name="' + this.$el.attr('id') + '" />');
 
         this.$ul = $('<ul />');
         this.$el.append(this.$ul);
@@ -645,6 +646,7 @@
         this.yPosition = 0;
         this.itemHeight = 0;
         this.updateLayout();
+        this.generatePOST();
     },
 
     getDataProvider: function() {
@@ -798,13 +800,17 @@
 
     generatePOST: function() {
         var i, postData = [], result = {};
-        var name = this.mid+'[]'
+        var name = this.mid+'[]';
         if (this.suffix == this.DESTINATION_SUFFIX){
             for (i = 0; i < this.dataProvider.length; i++) {
                 postData[i] =  this.dataProvider[i].listValue;
             }
+            result[name] = postData;
+            this.$input.val(decodeURIComponent($.param(result)));
+            if (this.$el.has(this.$input).length < 1){
+                this.$el.append(this.$input);
+            }
         }
-        result[name] = postData;
         return result;
     }
 
