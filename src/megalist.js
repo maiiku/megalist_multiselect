@@ -95,7 +95,9 @@
             '<div id="' + this.$el.attr('id') +
             '_scrollbar" class="scrollbar"></div>'
         );
-        this.$moveall = $('<button class="moveall">move all</button>');
+        this.$moveall = $(
+            '<input type="button" class="button" value="move all">'
+        );
         this.$input = $('<input type="hidden" name="' + this.$el.attr('id') + '" />');
 
         this.$ul = $('<ul />');
