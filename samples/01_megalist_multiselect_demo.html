@@ -8,7 +8,7 @@
     <meta name="author" content="">
 
     <script src="../lib/jquery-1.7.1.js"></script>
-    <script src="../src/megalist.js"></script>
+    <script src="../src/megalist-multiselect.js"></script>
     <link href="../src/megalist.css" rel="stylesheet" type="text/css" >
 
     <link href="../lib/google-code-prettify/prettify.css" rel="stylesheet">
@@ -28,7 +28,8 @@
       <h3>Megalist Multiselect Demo</h3>
       <p>This list has 100k items as generated json array:</p>
       <div id="my_megalist">
-        <input id="my_megalist_data_src" type="text" value="[
+        <span id="my_megalist_data_src" type="text">
+        [
           {
               label: 'item 1',
               value: 1
@@ -61,9 +62,11 @@
               label: 'item 8',
               value: 8
           }
-        ]">
+        ]
+        </span>
 
-        <input id="my_megalist_data_dst" type="text" value="[
+        <span id="my_megalist_data_dst" type="text">
+        [
           {
               label: 'item 9',
               value: 9
@@ -96,7 +99,8 @@
               label: 'item 16',
               value: 16
           }
-        ]">
+        ]
+        </span>
       </div>
       <p>First create the HTML Structure, then instantiate the list via javascript, and add an event handler:</p>
       <h4>Markup</h4>

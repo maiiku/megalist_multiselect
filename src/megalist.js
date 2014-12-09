@@ -8,7 +8,7 @@
   var Megalist = function(element) {
         var srcElement, dstElement;
 
-        $('input[type=text]', element).hide();
+        $('span', element).hide();
 
         srcElement = $(
             '<div class="megalist-inner" id="' + element.attr('id') +
@@ -153,7 +153,7 @@
     bindData: function() {
         var selector = '#' + this.name + '_data_' + this.suffix;
 
-        this.dataProviderOrig = eval($(selector).val());
+        this.dataProviderOrig = eval($(selector).text());
 
         this.dataProvider = this.dataProviderOrig;
 
