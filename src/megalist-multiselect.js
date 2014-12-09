@@ -6,28 +6,36 @@
   * ========================= */
 
   var Megalist = function(element) {
-        var srcElement, dstElement;
+    var srcElement, dstElement,
+        srcMegalist, dstMegalist;
 
-        $('span', element).hide();
+    $('span', element).hide();
 
-        srcElement = $(
-            '<div class="megalist-inner" id="' + element.attr('id') +
-            '_src"></div>'
-        ).appendTo(element);
-        dstElement = $(
-            '<div class="megalist-inner" id="' + element.attr('id') +
-            '_dst"></div>'
-        ).appendTo(element);
+    srcElement = $(
+        '<div class="megalist-inner" id="' + element.attr('id') +
+        '_src"></div>'
+    ).appendTo(element);
+    dstElement = $(
+        '<div class="megalist-inner" id="' + element.attr('id') +
+        '_dst"></div>'
+    ).appendTo(element);
 
-        srcElement.megalistSide(srcElement);
-        dstElement.megalistSide(dstElement);
-    };
+    srcMegalist = srcElement.megalistSide(srcElement);
+    dstMegalist = dstElement.megalistSide(dstElement);
 
+    srcMegalist.targetList = dstMegalist;
+    dstMegalist.targetList = srcMegalist;
 
-  var MegalistSide = function(element) {
-        this.$el = null;
-        this.init(element);
-    };
+    srcMegalist.destinationList = dstMegalist;
+    dstMegalist.destinationList = dstMegalist;
+  };
+
+  var MegalistSide = function(element, multiselectId) {
+    this.$el = null;
+    this.multiselectId = multiselectId;
+    this.init(element);
+    return this;
+  };
 
   MegalistSide.prototype = {
 
@@ -77,6 +85,7 @@
 
         this.bindEvents();
         this.bindData();
+        this.generatePOST(true);
         this.updateLayout();
     },
 
@@ -169,21 +178,6 @@
         this.updateLayout();
     },
 
-    getTargetIfExists: function() {
-        var target = '';
-
-        if (this.suffix === this.SOURCE_SUFFIX) {
-            target = this.name + '_' + this.DESTINATION_SUFFIX;
-        } else if (this.suffix === this.DESTINATION_SUFFIX) {
-            target = this.name + '_' + this.SOURCE_SUFFIX;
-        }
-        if ($.inArray(target, this.mlists) > -1) {
-            return target;
-        } else {
-            return false;
-        }
-    },
-
     onResize: function() {
         clearTimeout(this.reizeTimeout);
         var self = this,
@@ -198,7 +192,7 @@
 
     onKeydown: function (event) {
         var delta = 0,
-            action = 'change',
+            action = this.MOVE_ACTION_NAME,
             self = this,
             oldindex = this.getSelectedIndex(),
             index = oldindex + delta;
@@ -255,17 +249,13 @@
 
         var target = this.$ul.find('.megalistSelected');
 
-        if (this.targetList !== false) {
-            action = this.MOVE_ACTION_NAME;
-        }
-
         setTimeout(function() {
             var event = $.Event(action, data),
                 data = {
                     selectedIndex: index,
                     srcElement: $(target),
                     item: self.dataProvider[index],
-                    destination: self.targetList
+                    destination: self.$el.attr('id')
                 };
             self.$el.trigger(event);
         }, 150);
@@ -317,8 +307,6 @@
 
     processListClick: function(event) {
         var self = this,
-            action = 'change',
-            targetList,
             target = event.target,
             index = $(target).attr('list-index'),
             out_data = this.dataProvider[index],
@@ -341,35 +329,16 @@
 
         this.setSelectedIndex(index);
 
-        //make this asynch so that any "alert()" on a change event
-        //does not block the UI from updating the selected row
-        //this is particularly an issue on mobile devices
-        if (this.targetList !== false){
-            action = this.MOVE_ACTION_NAME;
-        }
-        if (action === this.MOVE_ACTION_NAME) {
-            targetList = $('#' + self.targetList)
-                .megalistSide('updateDataProvider', out_data);
+        this.targetList.updateDataProvider(out_data);
 
-            self.clearSelectedIndex();
+        self.clearSelectedIndex();
 
-            self.dataProviderOrig.splice(
-                self.dataProviderOrig.indexOf(clicked_value), 1
-            );
-            self.filterList();
+        self.dataProviderOrig.splice(
+            self.dataProviderOrig.indexOf(clicked_value), 1
+        );
+        self.filterList();
+        this.destinationList.generatePOST(true);
 
-        } else {
-            setTimeout(function() {
-                var event = $.Event(action, data),
-                    data = {
-                        selectedIndex: index,
-                        srcElement: $(target),
-                        item: self.dataProvider[index],
-                        destination: self.targetList
-                    };
-                self.$el.trigger(event);
-            }, 150);
-        }
         return true;
     },
 
@@ -378,23 +347,19 @@
             out_data = this.dataProvider,
             i;
 
-        if (this.targetList !== false){
-            action = this.MOVE_ACTION_NAME;
-        }
-        if (action === this.MOVE_ACTION_NAME) {
-            $('#' + this.targetList).megalistSide(
-                'updateDataProvider', out_data
-            );
-            this.clearSelectedIndex();
-            this.dataProvider = [];
+        this.targetList.updateDataProvider(out_data);
+
+        this.clearSelectedIndex();
+        this.dataProvider = [];
+        if (this.filteredData.length > 0) {
             for (i = this.filteredData.length - 1; i >= 0; i--) {
-                this.dataProviderOrig.splice(this.filteredData[i], 1)
-            };
-            this.updateLayout();
-            return true;
-        } else{
-            return false;
+                this.dataProviderOrig.splice(this.filteredData[i], 1);
+            }
+        } else {
+            this.dataProviderOrig = [];
         }
+        this.destinationList.generatePOST(true);
+        this.updateLayout();
     },
 
     cleanupListItems: function() {
@@ -485,7 +450,6 @@
                 }
             }
         }
-        this.generatePOST();
     },
 
     updateScrollBar: function() {
@@ -854,34 +818,36 @@
     },
 
     /**
-     * Generates string result of what is currently selected and populates
-     * this.$input value, adding it to DOM id necessary. Only does it for
-     * destination list. Result can be in 2 formats: POST-like (full) or comma
-     * separated
-     * @param {boolean} full - wherever to generate full POST-like data
-     * @return {string} result - string result of what is currently selected
-     */
+    * Generates string result of what is currently selected and populates
+    * this.$input value, adding it to DOM id necessary. Only does it for
+    * destination list. Result can be in 2 formats: POST-like (full) or comma
+    * separated
+    * @param {boolean} full - wherever to generate full POST-like data
+    * @return {string} result - string result of what is currently selected
+    */
     generatePOST: function(full) {
-        var i, postData = [], result = {};
-        var name = this.mid+'[]';
-        if (this.suffix == this.DESTINATION_SUFFIX){
-            for (i = 0; i < this.dataProvider.length; i++) {
-                postData[i] =  this.dataProvider[i].listValue;
-            }
-            if (full === true){
-                result[name] = postData;
-                this.$input.val(decodeURIComponent($.param(result)));
-            } else {
-                this.$input.val(postData.join(','));
-            }
+      var i,
+          postData = [],
+          result = {},
+          name = this.name + '[]';
 
-            if (this.$el.has(this.$input).length < 1){
-                this.$el.append(this.$input);
-            }
-        }
-        return result;
+      if (this.suffix === this.DESTINATION_SUFFIX){
+          for (i = 0; i < this.dataProviderOrig.length; i++) {
+              postData[i] = this.dataProviderOrig[i].listValue;
+          }
+          if (full === true){
+              result[name] = postData;
+              this.$input.val(decodeURIComponent($.param(result)));
+          } else {
+              this.$input.val(postData.join(','));
+          }
+
+          if (this.$el.has(this.$input).length < 1) {
+              this.$el.append(this.$input);
+          }
+      }
+      return result;
     }
-
 
   };
 
@@ -889,30 +855,11 @@
    * ========================== */
 
   $.fn.megalistSide = function (option, params) {
-    // make magalists aware of each other
-    var mlists = $('div.megalist-inner').map(function() {
-        return this.id;
-    }).get();
-
-    return this.each(function() {
-        var $this = $(this), data = $this.data('list');
-
-        if (!data) {
-            $this.data('list', (data = new MegalistSide(this)));
-        }
-
-        data.mlists = mlists;
-        data.mid = this.id;
-        data.targetList = data.getTargetIfExists();
-
-        if (typeof option === 'string') {
-            this.result = data[option](params);
-        }
-    });
+    return new MegalistSide(this);
   };
 
   $.fn.megalist = function (option, params) {
-    new Megalist(this);
+    return new Megalist(this);
   };
 
   $.fn.megalistSide.Constructor = MegalistSide;
