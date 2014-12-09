@@ -806,7 +806,7 @@
 
     filterList: function() {
         var self = this,
-            searchQuery = this.$search.val().trim(),
+            searchQuery = this.$search.val().toLowerCase().trim(),
             searchTokens = searchQuery.split(' '),
             isQueryValid = searchQuery.length < this.MINIMUM_SEARCH_QUERY_SIZE,
             i;
@@ -836,7 +836,7 @@
         var tokenIndex = 0,
             valI = 0,
             i;
-        val = val.label;
+        val = val.label.toLowerCase();
         while (valI < val.length) {
             if (val[valI++] === searchTokens[tokenIndex][0]) {
                 for (i = 1; i < searchTokens[tokenIndex].length; i++) {
