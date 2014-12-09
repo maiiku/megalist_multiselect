@@ -85,8 +85,7 @@
 
         this.bindEvents();
         this.bindData();
-        this.generatePOST(true);
-        this.updateLayout();
+
     },
 
     buildDOM: function(element) {
@@ -162,9 +161,10 @@
     },
 
     bindData: function() {
-        var selector = '#' + this.name + '_data_' + this.suffix;
+        this.$dataSpan = $('#' + this.name + '_data_' + this.suffix);
 
-        this.dataProviderOrig = eval($(selector).text());
+        this.dataProviderOrig =  $.parseJSON(this.$dataSpan.text());
+        this.$dataSpan.detach()
 
         this.dataProvider = this.dataProviderOrig;
 
