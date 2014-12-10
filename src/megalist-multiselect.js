@@ -15,6 +15,8 @@
       if ($parent == undefined){
         this.$el = element;
 
+        this.$el.html('');
+
          //crate 2 containers for megalists and append them
         srcElement = $( '<div/>', {
             id: this.$el.attr('id') + '_' + this.SOURCE_SUFFIX,
@@ -79,6 +81,10 @@
         this.bindData();
         this.updateLayout();
 
+        if (this.suffix === this.DESTINATION_SUFFIX) {
+            this.generatePOST(this.BUILD_FULL_POST);
+        }
+
         return this;
     },
 
@@ -106,7 +112,7 @@
             value: 'move all'
         });
         this.$input = $( '<input/>', {
-            name: this.$el.attr('id'),
+            name: this.name,
             placeholder: 'Search',
             type: 'hidden'
         });
