@@ -148,14 +148,23 @@
         }
     },
 
+    /**
+     * Binds all events need by the widget
+     */
     bindEvents: function() {
         var self = this;
+
+       $(window).resize(function(event){
+            return self.onResize(event);
+        });
+
+        $(window).bind('keydown', function(event) {
+            return self.onKeydown(event);
+        });
 
         this.$el.mousedown(function() {
             this.focus();
         });
-
-        $(window).resize(this.resizeHandler);
 
         this.$el.bind('mousewheel DOMMouseScroll', function(event) {
             event.preventDefault();
@@ -164,10 +173,6 @@
 
         this.$el.click(function(event) {
             self.processListClick(event);
-        });
-
-        $(window).bind('keydown', function(event) {
-            return self.onKeydown(event);
         });
 
         this.$scrollbar.bind('mousedown', function(event) {
@@ -184,6 +189,11 @@
         });
     },
 
+    /**
+     * Extracts the supplied data for megalistSide from data-provider-src or
+     * data-provider-dst attributes depending which side is being loaded.
+     * The attributes must be set on megalist container.
+     */
     bindData: function() {
         this.origData = this.$parent.attr('data-provider-' + this.suffix);
         if (this.origData.length){
@@ -204,6 +214,14 @@
         this.yPosition = 0;
     },
 
+    /**
+     * Parses the data extracted from container attribues. Currently two
+     * formats are supported: JSON and passing old <select> element that
+     * is being replaced by this widget
+     * @param {string} origData - string extracted from attribute
+     *                            (JSON or old select html)
+     * @return {Array} parsed - parsed data array
+     */
     parseData: function(origData){
         var parsed = [], item = {};
 
@@ -226,7 +244,7 @@
         return parsed;
     },
 
-    onResize: function() {
+    onResize: function(event) {
         clearTimeout(this.reizeTimeout);
         var self = this,
             totalHeight = this.dataProvider.length * this.itemHeight,
@@ -390,7 +408,7 @@
         return true;
     },
 
-    onMoveAll: function(){
+    onMoveAll: function(event){
         var action = 'change',
             out_data = this.dataProvider,
             i;
