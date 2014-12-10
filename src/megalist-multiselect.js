@@ -232,6 +232,7 @@
      */
     parseData: function(origData){
         var parsed = [], item = {};
+        var selected = ':not(:selected)';
 
         //first see if it's JSON
         try {
@@ -240,8 +241,11 @@
           //not JSON
         }
         //ok, maybe it's being fed <option>s from an old select?
-        if (origData.indexOf('<select>') > -1){
-           $.map($('option', origData), function(opt){
+        if (origData.indexOf('<select') > -1){
+          if (this.suffix === this.DESTINATION_SUFFIX) {
+              selected = ':selected';
+          }
+           $.map($('option', origData).filter(selected), function(opt){
                item["listValue"] = opt.value;
                item["label"] = opt.text;
                parsed.push(item)

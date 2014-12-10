@@ -17,7 +17,7 @@
     <script>
         $(document).ready( function() {
             $('#my_megalist').attr('data-provider-src', "[ "+createDataProvider(0).join(',')+" ]");
-            $('#my_megalist').attr('data-provider-dst', "<select> "+createDataProviderSelect(1).join('')+" </select>");
+            $('#my_megalist').attr('data-provider-dst', "<select multiple> "+createDataProviderSelect(1).join('')+" </select>");
             $('#my_megalist').megalist();
         });
         function createDataProvider(offset) {
@@ -32,7 +32,7 @@
         }
         function createDataProviderSelect(offset) {
             var result = [],
-                quantity = 50000;
+                quantity = 50;
             for (x = quantity * offset; x < quantity * (offset + 1); x++) {
                 result.push(
                     '<option value="' + x + '"> item ' + x + '</option>'
