@@ -187,7 +187,7 @@
     bindData: function() {
         this.origData = this.$parent.attr('data-provider-' + this.suffix);
         if (this.origData.length){
-            this.dataProviderOrig =  $.parseJSON(this.origData);
+            this.dataProviderOrig =  this.parseData(this.origData);
             this.$parent.attr('data-provider-' + this.suffix, '')
         } else {
             this.dataProviderOrig = {};
@@ -202,6 +202,28 @@
         });
 
         this.yPosition = 0;
+    },
+
+    parseData: function(origData){
+        var parsed = [], item = {};
+
+        //first see if it's JSON
+        try {
+          parsed = $.parseJSON(origData);
+        } catch(e) {
+          //not JSON
+        }
+        //ok, maybe it's being fed <option>s from an old select?
+        if (origData.indexOf('<select>') > -1){
+           $.map($('option', origData), function(opt){
+               item["listValue"] = opt.value;
+               item["label"] = opt.text;
+               parsed.push(item)
+               item = {};
+           })
+        }
+
+        return parsed;
     },
 
     onResize: function() {
