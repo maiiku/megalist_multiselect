@@ -76,8 +76,8 @@
         this.filteredData = [];
 
         //init widget
-        this.buildDOM();
         this.getSuffix();
+        this.buildDOM();
         this.bindEvents();
         this.bindData();
         this.updateLayout();
@@ -114,7 +114,6 @@
         });
         this.$input = $( '<input/>', {
             name: this.name,
-            placeholder: 'Search',
             type: 'hidden'
         });
         this.$ul = $('<ul />');
