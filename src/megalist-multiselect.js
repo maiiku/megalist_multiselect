@@ -47,7 +47,8 @@
     constructor: Megalist,
 
     /**
-     * megalistSide cunstructor - initializes one side of megalist mutiselect
+     * megalistSide cunstructor - initializes one side of megalist
+     *
      * @param {object} element - jQuery object on witch megalist is initialized
      * @param {object} $parent - optional jQuery object with parent for
      *                           megalistSide intialization only
@@ -224,6 +225,7 @@
      * Parses the data extracted from container attribues. Currently two
      * formats are supported: JSON and passing old <select> element that
      * is being replaced by this widget
+     *
      * @param {string} origData - string extracted from attribute
      *                            (JSON or old select html)
      * @return {Array} parsed - parsed data array
@@ -250,6 +252,13 @@
         return parsed;
     },
 
+    /**
+     * Updates responsive mutliselect on window resize by recalculating new
+     * sizing and redrawing megalistSide widgets. Updating has some inertia
+     * added resizing only after RESIZE_TIMEOUT_DELAY is reached
+     *
+     * @param {event} event - window resize event
+     */
     onResize: function(event) {
         clearTimeout(this.reizeTimeout);
         var self = this,
@@ -262,6 +271,10 @@
         }, this.RESIZE_TIMEOUT_DELAY);
     },
 
+     /**
+     * @TODO - @FIXME
+     * @param {event} event - user key press event
+     */
     onKeydown: function (event) {
         var delta = 0,
             action = this.MOVE_ACTION_NAME,
@@ -335,11 +348,17 @@
         return false;
     },
 
+    /**
+     * Updates megalistSide widget on mouse scroll event
+     * only concerned about vertical scroll
+     * scroll wheel logic from jquery.mousewheel.js, project page at
+     * https://github.com/brandonaaron/jquery-mousewheel
+     *
+     * @param {event} event - mouse wheel event
+     */
     onMouseWheel: function (event) {
         clearTimeout(this.cleanupTimeout);
 
-        //only concerned about vertical scroll
-        //scroll wheel logic from: https://github.com/brandonaaron/jquery-mousewheel/blob/master/jquery.mousewheel.js
         var self = this,
             orgEvent = event.originalEvent,
             delta = 0,
