@@ -5,40 +5,52 @@
  /* LIST CLASS DEFINITION
   * ========================= */
 
-  var Megalist = function(element) {
-    var srcElement, dstElement, srcMegalist, dstMegalist;
+  var Megalist = function(element, $parent) {
+    var srcElement, dstElement;
 
-    this.$el = element;
+    //functional suffixes for multiselect
+    this.DESTINATION_SUFFIX = 'dst';
+    this.SOURCE_SUFFIX = 'src';
 
-    //crate 2 containers for megalists
-    srcElement = $(
-        '<div class="megalist-inner" id="' + this.$el.attr('id') +
-        '_src"></div>'
-    ).appendTo(this.$el);
-    dstElement = $(
-        '<div class="megalist-inner" id="' + this.$el.attr('id') +
-        '_dst"></div>'
-    ).appendTo(this.$el);
+      if ($parent == undefined){
+        this.$el = element;
 
-    srcMegalist = srcElement.megalistSide(srcElement, this.$el);
-    dstMegalist = dstElement.megalistSide(dstElement, this.$el);
+         //crate 2 containers for megalists and append them
+        srcElement = $( '<div/>', {
+            id: this.$el.attr('id') + '_' + this.SOURCE_SUFFIX,
+            class: 'megalist-inner'
+        });
+        dstElement = $( '<div/>', {
+            id: this.$el.attr('id') + '_' + this.DESTINATION_SUFFIX,
+            class: 'megalist-inner'
+        });
+        this.$el.append(srcElement, dstElement);
 
-    srcMegalist.targetList = dstMegalist;
-    dstMegalist.targetList = srcMegalist;
+        this.srcMegalist = new Megalist(srcElement, this.$el);
+        this.dstMegalist = new Megalist(dstElement, this.$el);
 
-    srcMegalist.destinationList = dstMegalist;
-    dstMegalist.destinationList = dstMegalist;
-  };
+        this.srcMegalist.targetList = this.dstMegalist;
+        this.dstMegalist.targetList = this.srcMegalist;
 
-  var MegalistSide = function(element, $parent) {
-    this.init(element, $parent);
+        this.srcMegalist.destinationList = this.dstMegalist;
+        this.dstMegalist.destinationList = this.dstMegalist;
+    } else {
+        this.init(element, $parent);
+    }
     return this;
   };
 
-  MegalistSide.prototype = {
+  Megalist.prototype = {
 
-    constructor: MegalistSide,
+    constructor: Megalist,
 
+    /**
+     * megalistSide cunstructor - initializes one side of megalist mutiselect
+     * @param {object} element - jQuery object on witch megalist is initialized
+     * @param {object} $parent - optional jQuery object with parent for
+     *                           megalistSide intialization only
+     * @return {object} - returns self
+     */
     init: function(element, $parent) {
         this.$el = element;
         this.$parent = $parent;
@@ -48,10 +60,6 @@
         this.RESIZE_TIMEOUT_DELAY = 100;
         this.MINIMUM_SEARCH_QUERY_SIZE = 2;
         this.BUILD_FULL_POST = false;
-
-        //functional suffixes for multiselect
-        this.DESTINATION_SUFFIX = 'dst';
-        this.SOURCE_SUFFIX = 'src';
         this.MOVE_ACTION_NAME = 'move';
 
         //defaults
@@ -71,32 +79,42 @@
         this.bindData();
         this.updateLayout();
 
+        return this;
     },
 
+    /**
+     * Builds required html elements for megalistSide:
+     * searchbox, scrollbar, move button and hidden result input
+     */
     buildDOM: function() {
         var scrollbarWidth;
 
         this.$el.wrap('<div class="megalist"></div>"');
 
-        this.$search = $(
-            '<input type="text" id="' + this.$el.attr('id') +
-            '_search" placeholder="Search">'
-        );
-        this.$scrollbar = $(
-            '<div id="' + this.$el.attr('id') +
-            '_scrollbar" class="scrollbar"></div>'
-        );
-        this.$moveall = $(
-            '<input type="button" class="button" value="move all">'
-        );
-        this.$input = $('<input type="hidden" name="' + this.$el.attr('id') + '" />');
-
+        this.$search = $( '<input/>', {
+            id: this.$el.attr('id') + '_search',
+            placeholder: 'Search',
+            type: 'text'
+        });
+        this.$scrollbar = $( '<div/>', {
+            id: this.$el.attr('id') + '_scrollbar',
+            class: 'scrollbar'
+        });
+        this.$moveall = $( '<input/>', {
+            class: 'button',
+            type: 'button',
+            value: 'move all'
+        });
+        this.$input = $( '<input/>', {
+            name: this.$el.attr('id'),
+            placeholder: 'Search',
+            type: 'hidden'
+        });
         this.$ul = $('<ul />');
-        this.$el.append(this.$ul);
 
-        this.$el.before(this.$search);
-        this.$el.append(this.$scrollbar);
-        this.$el.after(this.$moveall);
+        this.$el.before(this.$search)
+                .append(this.$ul, this.$scrollbar)
+                .after(this.$moveall);
 
         this.$ul.css('visibility', 'visible');
 
@@ -107,6 +125,10 @@
         this.$scrollbar.css('width', 1.25 * scrollbarWidth);
     },
 
+    /**
+     * Resolves suffix for megalistSide so that it know if it's source or
+     * destination side. Resolving is based on id of the container
+     */
     getSuffix: function() {
         var id_tokens, lastToken;
 
@@ -862,15 +884,10 @@
   /* LIST PLUGIN DEFINITION
    * ========================== */
 
-  $.fn.megalistSide = function (option, params) {
-    return new MegalistSide(option, params);
-  };
-
   $.fn.megalist = function (option, params) {
-    return new Megalist(this);
+    var multiselect = new Megalist(this);
+    if (typeof option === 'string') { this.result = multiselect[option](params); }
+    return this;
   };
-
-  $.fn.megalistSide.Constructor = MegalistSide;
-  $.fn.megalist.Constructor = Megalist;
 
 } (window.jQuery);
