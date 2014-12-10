@@ -6,12 +6,11 @@
   * ========================= */
 
   var Megalist = function(element) {
-    var srcElement, dstElement,
-        srcMegalist, dstMegalist;
+    var srcElement, dstElement, srcMegalist, dstMegalist;
 
     this.$el = element;
-    $('span', this.$el).hide();
 
+    //crate 2 containers for megalists
     srcElement = $(
         '<div class="megalist-inner" id="' + this.$el.attr('id') +
         '_src"></div>'
@@ -86,6 +85,7 @@
 
         this.bindEvents();
         this.bindData();
+        this.updateLayout();
 
     },
 
@@ -179,7 +179,6 @@
         });
 
         this.yPosition = 0;
-        this.updateLayout();
     },
 
     onResize: function() {
@@ -841,16 +840,20 @@
           }
           if (full === true){
               result[name] = postData;
-              this.$input.val(decodeURIComponent($.param(result)));
+              result = decodeURIComponent($.param(result));
+              this.$input.val(result);
           } else {
-              this.$input.val(postData.join(','));
+              result = postData.join(',');
+              this.$input.val(result);
           }
 
           if (this.$el.has(this.$input).length < 1) {
               this.$el.append(this.$input);
           }
+          return result;
+      } else {
+          return '';
       }
-      return result;
     }
 
   };

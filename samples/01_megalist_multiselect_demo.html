@@ -43,14 +43,25 @@
       <p>First create the HTML Structure, then instantiate the list via javascript, and add an event handler:</p>
       <h4>Markup</h4>
       <pre class="prettyprint linenums">
-          &lt;div class=&quot;megalist&quot; id=&quot;myList_src&quot; &gt;&lt;/div&gt;
-          &lt;div class=&quot;megalist&quot; id=&quot;myList_dst&quot; &gt;&lt;/div&gt;
+          &lt;div id=&quot;my_megalist&quot; &gt;&lt;/div&gt;
       </pre>
       <h4>Script</h4>
       <pre class="prettyprint linenums">
         $(document).ready( function() {
-            $('.megalist').megalist();
+            $('#my_megalist').attr('data-provider-src', "[ "+createDataProvider(0).join(',')+" ]");
+            $('#my_megalist').attr('data-provider-dst', "[ "+createDataProvider(1).join(',')+" ]");
+            $('#my_megalist').megalist();
         });
+        function createDataProvider(offset) {
+            var result = [],
+                quantity = 5000;
+            for (x = quantity * offset; x < quantity * (offset + 1); x++) {
+                result.push(
+                    '{ "label": "item ' + x + '", "listValue":' + x +'}'
+                );
+            }
+            return (result);
+        }
       </pre>
   </body>
 </html>
