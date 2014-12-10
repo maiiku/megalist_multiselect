@@ -47,11 +47,11 @@
     constructor: Megalist,
 
     /**
-     * megalistSide cunstructor - initializes one side of megalist
+     * megalistSide constructor - initializes one side of megalist
      *
      * @param {object} element - jQuery object on witch megalist is initialized
      * @param {object} $parent - optional jQuery object with parent for
-     *                           megalistSide intialization only
+     *                           megalistSide initialization only
      * @return {object} - returns self
      */
     init: function(element, $parent) {
@@ -71,7 +71,6 @@
         this.itemHeight = -1;
         this.listItems = $();
         this.suffix = undefined;
-        this.velocity = {distance:0, lastTime:0, timeDelta:0};
         this.yPosition = 0;
         this.filteredData = [];
 
@@ -274,10 +273,10 @@
         }, this.RESIZE_TIMEOUT_DELAY);
     },
 
-     /**
-     * @TODO - @FIXME
-     * @param {event} event - user key press event
-     */
+    /**
+    * @TODO - @FIXME
+    * @param {event} event - user key press event
+    */
     onKeydown: function (event) {
         var delta = 0,
             action = this.MOVE_ACTION_NAME,
@@ -455,6 +454,72 @@
         this.destinationList.generatePOST(this.BUILD_FULL_POST);
         this.updateLayout();
     },
+    onScrollbarStart: function(event) {
+        var self = this;
+
+        this.unbindScrollbarEvents();
+        this.scrollbarInputCoordinates = this.getInputCoordinates(event);
+
+        $(window).bind('mousemove', function(event) {
+             self.onScrollbarMove(event);
+        });
+
+        $(window).bind('mouseup', function(event) {
+             self.unbindScrollbarEvents();
+        });
+
+        event.preventDefault();
+        return false;
+    },
+
+    onScrollbarMove: function(event) {
+        var newCoordinates = this.getInputCoordinates(event),
+            height = this.$el.height(),
+            totalHeight = this.dataProvider.length * this.itemHeight,
+            scrollbarHeight = this.$scrollbar.height(),
+            yDelta = this.scrollbarInputCoordinates.y - newCoordinates.y,
+            yPosition = parseInt(this.$scrollbar.css('top'), 10),
+            newYPosition;
+
+        // valid move occurs only when pressing left mouse button
+        if (event.which !== 1) {
+            this.unbindScrollbarEvents();
+            return;
+        }
+
+        yPosition -= yDelta;
+
+        yPosition = Math.max(yPosition, this.SCROLLBAR_BORDER);
+        yPosition = Math.min(
+            yPosition,
+            height - this.SCROLLBAR_BORDER - scrollbarHeight
+        );
+
+        this.$scrollbar.css('top', yPosition);
+        this.scrollbarInputCoordinates = newCoordinates;
+
+        newYPosition = (
+            (yPosition - this.SCROLLBAR_BORDER) /
+            (height - (2 * this.SCROLLBAR_BORDER) - scrollbarHeight) *
+            (this.itemHeight * this.dataProvider.length - 1)
+        );
+        newYPosition = Math.max(0, newYPosition);
+        newYPosition = Math.min(
+            newYPosition,
+            totalHeight - (height - (2 * this.SCROLLBAR_BORDER) - scrollbarHeight)
+        );
+
+        this.yPosition = newYPosition;
+        this.updateLayout(true);
+
+        event.preventDefault();
+        return false;
+    },
+
+    unbindScrollbarEvents: function() {
+        $(window).unbind('mousemove');
+        $(window).unbind('mouseup');
+    },
 
     cleanupListItems: function() {
         //remove any remaining LI elements hanging out on the dom
@@ -585,95 +650,26 @@
         }
     },
 
-    updateVelocity: function(yDelta) {
-        var time = new Date().getTime();
-        this.velocity.distance = yDelta;
-        this.velocity.timeDelta = time - this.velocity.lastTime;
-        this.velocity.lastTime = time;
-
-        if (this.velocity.timeDelta > 1000) {
-            this.velocity.distance = 0;
-        }
-    },
-
-    scrollWithInertia: function() {
-        var self = this,
-            friction = 0.97,
-            startPosition = Math.ceil(this.yPosition / this.itemHeight),
-            height = this.$el.height(),
-            totalHeight = this.dataProvider.length * this.itemHeight,
-            maxPosition = totalHeight - height,
-            yDelta;
-
-        if (startPosition <= 0 && this.yPosition <= 0 || totalHeight < height) {
-            this.snapToTop();
-            return;
-        }
-
-        if (this.yPosition > maxPosition) {
-            this.snapToBottom();
-            return;
-        }
-
-        yDelta = this.velocity.distance * (
-            friction * (Math.max(1000 - this.velocity.timeDelta, 0) / 1000)
-        );
-        this.yPosition += yDelta;
-        this.updateVelocity(yDelta);
-        this.updateLayout();
-
-        if (Math.abs(yDelta) >= 1) {
-            this.cleanupListItems();
-            requestAnimFrame(function() {
-                self.scrollWithInertia();
-            });
-        } else {
-            this.cleanupListItems();
-        }
-    },
-
-    snapToTop: function() {
-        var snapRatio = 5,
-            targetPosition = 0;
-
-        if (this.yPosition < -2) {
-            this.yPosition += (targetPosition - this.yPosition) / snapRatio;
-            this.updateLayout();
-        } else {
-            this.yPosition = 0;
-            this.updateLayout();
-            this.cleanupListItems();
-        }
-    },
-
-    snapToBottom: function() {
-        var snapRatio = 5,
-            height = this.$el.height(),
-            totalHeight = this.dataProvider.length * this.itemHeight,
-            maxPosition = totalHeight - height;
-
-        if (Math.round(this.yPosition) > maxPosition) {
-            this.yPosition += (maxPosition - this.yPosition) / snapRatio;
-            this.updateLayout();
-        } else {
-            this.yPosition = maxPosition;
-            this.updateLayout();
-            this.cleanupListItems();
-        }
-    },
-
+    /**
+     * Utility function so set offset css on an item
+     *
+     * @param {object} item - megalist element
+     * @param {int} x - x offset in pixels
+     * @param {int} y - y offset in pixels
+     */
     setItemPosition: function(item, x, y) {
         item.css('left', x);
         item.css('top', y);
     },
 
-     /**
+    /**
      * Gets megalist item at given index. Parses it to <li> item if necessary
+     *
      * @param {int} i - object index
      * @return {object} - jQuery object containing selected <li> element
      */
     getItemAtIndex: function(i) {
-        var item, iString, data, label, jdata, value;
+        var item, iString, data;
         if (this.dataProvider === this.listItems) {
             item = $(this.listItems[i]);
         }
@@ -691,84 +687,14 @@
 
             if (i >= 0 && i < this.dataProvider.length){
                 data = this.dataProvider[i];
-                label = data.label;
-                value = data.listValue;
-                try {
-                  jdata = $.parseJSON(label);
-                } catch(e) {
-                  //not json
-                   jdata = '';
-                }
-
-                if (jdata !== '') {
-                    item.html(jdata.label);
-                    item.attr('list-value', jdata.listValue);
-                } else {
-                    item.html(label);
-                    item.attr('list-value', value);
-                }
+                item.html(data.label);
+                item.attr('list-value', data.listValue);
             }
         }
         if (item !== null && item !== undefined) {
             item.attr('list-index', i);
         }
         return item;
-    },
-
-    /**
-     * Sets initial data for megalist and updates layout with it
-     * @param {Array} dataProvider - object array to initaly feed megalist
-     */
-    setDataProvider: function(dataProvider) {
-        this.clearSelectedIndex();
-        this.dataProviderOrig = dataProvider;
-        this.dataProvider = dataProvider;
-
-        this.$ul.find('li').each(function() {
-            $(this).remove();
-        });
-
-        this.yPosition = 0;
-        this.updateLayout();
-    },
-
-    /**
-     * Updates megalist with new data. Accepts either a single object or
-     * an Array of objects and updates layout with new data
-     * @param {object|Array} newElement - new object / array of objects
-     *                                    to be inserted into the list
-     */
-    updateDataProvider: function(newElement) {
-        this.clearSelectedIndex();
-
-        if ($.isArray(newElement)) {
-            $.merge(this.dataProviderOrig, newElement);
-        } else {
-            this.dataProviderOrig.push(newElement);
-        }
-        this.filterList();
-
-        this.$ul.find('li').each(function() {
-            $(this).remove();
-        });
-
-        this.yPosition = 0;
-        this.itemHeight = 0;
-        this.updateLayout();
-    },
-
-     /**
-     * Returns current objects in megalist
-     * @return {Array} - list of objects in megalist
-     *
-     */
-    getDataProvider: function() {
-        return this.dataProvider;
-    },
-
-    setLabelFunction: function(labelFunction) {
-        this.labelFunction = labelFunction;
-        this.updateLayout();
     },
 
     getSelectedIndex: function() {
@@ -795,71 +721,63 @@
         this.selectedIndex = -1;
     },
 
-    onScrollbarStart: function(event) {
-        var self = this;
+    /**
+     * Sets initial data for megalist and updates layout with it
+     *
+     * @param {Array} dataProvider - object array to initially feed megalist
+     */
+    setDataProvider: function(dataProvider) {
+        this.clearSelectedIndex();
+        this.dataProviderOrig = dataProvider;
+        this.dataProvider = dataProvider;
 
-        this.unbindScrollbarEvents();
-        this.scrollbarInputCoordinates = this.getInputCoordinates(event);
-
-        $(window).bind('mousemove', function(event) {
-             self.onScrollbarMove(event);
+        this.$ul.find('li').each(function() {
+            $(this).remove();
         });
 
-        $(window).bind('mouseup', function(event) {
-             self.unbindScrollbarEvents();
-        });
-
-        event.preventDefault();
-        return false;
+        this.yPosition = 0;
+        this.updateLayout();
     },
 
-    onScrollbarMove: function(event) {
-        var newCoordinates = this.getInputCoordinates(event),
-            height = this.$el.height(),
-            totalHeight = this.dataProvider.length * this.itemHeight,
-            scrollbarHeight = this.$scrollbar.height(),
-            yDelta = this.scrollbarInputCoordinates.y - newCoordinates.y,
-            yPosition = parseInt(this.$scrollbar.css('top'), 10),
-            newYPosition;
+    /**
+     * Updates megalist with new data. Accepts either a single object or
+     * an Array of objects and updates layout with new data
+     *
+     * @param {object|Array} newElement - new object / array of objects
+     *                                    to be inserted into the list
+     */
+    updateDataProvider: function(newElement) {
+        this.clearSelectedIndex();
 
-        // valid move occurs only when pressing left mouse button
-        if (event.which !== 1) {
-            this.unbindScrollbarEvents();
-            return;
+        if ($.isArray(newElement)) {
+            $.merge(this.dataProviderOrig, newElement);
+        } else {
+            this.dataProviderOrig.push(newElement);
         }
+        this.filterList();
 
-        yPosition -= yDelta;
+        this.$ul.find('li').each(function() {
+            $(this).remove();
+        });
 
-        yPosition = Math.max(yPosition, this.SCROLLBAR_BORDER);
-        yPosition = Math.min(
-            yPosition,
-            height - this.SCROLLBAR_BORDER - scrollbarHeight
-        );
-
-        this.$scrollbar.css('top', yPosition);
-        this.scrollbarInputCoordinates = newCoordinates;
-
-        newYPosition = (
-            (yPosition - this.SCROLLBAR_BORDER) /
-            (height - (2 * this.SCROLLBAR_BORDER) - scrollbarHeight) *
-            (this.itemHeight * this.dataProvider.length - 1)
-        );
-        newYPosition = Math.max(0, newYPosition);
-        newYPosition = Math.min(
-            newYPosition,
-            totalHeight - (height - (2 * this.SCROLLBAR_BORDER) - scrollbarHeight)
-        );
-
-        this.yPosition = newYPosition;
-        this.updateLayout(true);
-
-        event.preventDefault();
-        return false;
+        this.yPosition = 0;
+        this.itemHeight = 0;
+        this.updateLayout();
     },
 
-    unbindScrollbarEvents: function() {
-        $(window).unbind('mousemove');
-        $(window).unbind('mouseup');
+    /**
+     * Returns current objects in megalist
+     *
+     * @return {Array} - list of objects in megalist
+     *
+     */
+    getDataProvider: function() {
+        return this.dataProvider;
+    },
+
+    setLabelFunction: function(labelFunction) {
+        this.labelFunction = labelFunction;
+        this.updateLayout();
     },
 
     filterList: function() {
