@@ -239,7 +239,7 @@
           //not JSON
         }
         //ok, maybe it's being fed <option>s from an old select?
-        if (origData.indexOf('<select') > -1){
+        if (origData.substr(0, 7) == '<select'){
           if (this.suffix === this.DESTINATION_SUFFIX) {
               selected = ':selected';
           }
@@ -249,6 +249,8 @@
                parsed.push(item)
                item = {};
            })
+        } else if ((origData.indexOf('<select') > -1)){
+            console.log('ERROR: the supplied string MUST start with <select');
         }
 
         return parsed;
@@ -775,11 +777,6 @@
         return this.dataProvider;
     },
 
-    setLabelFunction: function(labelFunction) {
-        this.labelFunction = labelFunction;
-        this.updateLayout();
-    },
-
     filterList: function() {
         var self = this,
             searchQuery = this.$search.val().toLowerCase().trim(),
@@ -830,13 +827,14 @@
     },
 
     /**
-    * Generates string result of what is currently selected and populates
-    * this.$input value, adding it to DOM id necessary. Only does it for
-    * destination list. Result can be in 2 formats: POST-like (full) or comma
-    * separated
-    * @param {boolean} full - wherever to generate full POST-like data
-    * @return {string} result - string result of what is currently selected
-    */
+     * Generates string result of what is currently selected and populates
+     * this.$input value, adding it to DOM id necessary. Only does it for
+     * destination list. Result can be in 2 formats: POST-like (full) or comma
+     * separated
+     *
+     * @param {boolean} full - wherever to generate full POST-like data
+     * @return {string} result - string result of what is currently selected
+     */
     generatePOST: function(full) {
       var i,
           postData = [],
