@@ -31,9 +31,7 @@
   };
 
   var MegalistSide = function(element, $parent) {
-    this.$el = element;
-    this.$parent = $parent;
-    this.init(this.$el);
+    this.init(element, $parent);
     return this;
   };
 
@@ -41,58 +39,42 @@
 
     constructor: MegalistSide,
 
-    init: function(element) {
-        var id_tokens, lastToken;
+    init: function(element, $parent) {
+        this.$el = element;
+        this.$parent = $parent;
 
         this.SCROLLBAR_BORDER = 1;
         this.SCROLLBAR_MIN_SIZE = 10;
-
         this.RESIZE_TIMEOUT_DELAY = 100;
-
         this.MINIMUM_SEARCH_QUERY_SIZE = 2;
+        this.BUILD_FULL_POST = false;
 
         //functional suffixes for multiselect
         this.DESTINATION_SUFFIX = 'dst';
         this.SOURCE_SUFFIX = 'src';
         this.MOVE_ACTION_NAME = 'move';
 
+        //defaults
         this.processedItems = {};
         this.totalItems = [];
         this.itemHeight = -1;
         this.listItems = $();
         this.suffix = undefined;
-        this.inputCoordinates = null;
         this.velocity = {distance:0, lastTime:0, timeDelta:0};
         this.yPosition = 0;
         this.filteredData = [];
 
-        this.buildDOM(element);
-
-        id_tokens = this.$el.attr('id').split('_');
-        lastToken = id_tokens[id_tokens.length - 1];
-        this.name = id_tokens.splice(id_tokens, id_tokens.length-1).join('_');
-
-        if (lastToken === this.SOURCE_SUFFIX) {
-            this.suffix = this.SOURCE_SUFFIX;
-        } else if (lastToken === this.DESTINATION_SUFFIX) {
-            this.suffix = this.DESTINATION_SUFFIX;
-        } else {
-            console.log(
-                'Ids of multiselect widget elements must end with' +
-                '"_src" or "_dst"'
-            );
-        }
-
+        //init widget
+        this.buildDOM();
+        this.getSuffix();
         this.bindEvents();
         this.bindData();
         this.updateLayout();
 
     },
 
-    buildDOM: function(element) {
+    buildDOM: function() {
         var scrollbarWidth;
-
-        this.$el = $(element);
 
         this.$el.wrap('<div class="megalist"></div>"');
 
@@ -123,6 +105,25 @@
 
         scrollbarWidth = parseInt(this.$scrollbar.css('width'), 10);
         this.$scrollbar.css('width', 1.25 * scrollbarWidth);
+    },
+
+    getSuffix: function() {
+        var id_tokens, lastToken;
+
+        id_tokens = this.$el.attr('id').split('_');
+        lastToken = id_tokens[id_tokens.length - 1];
+        this.name = id_tokens.splice(id_tokens, id_tokens.length-1).join('_');
+
+        if (lastToken === this.SOURCE_SUFFIX) {
+            this.suffix = this.SOURCE_SUFFIX;
+        } else if (lastToken === this.DESTINATION_SUFFIX) {
+            this.suffix = this.DESTINATION_SUFFIX;
+        } else {
+            console.log(
+                'Ids of multiselect widget elements must end with' +
+                '"_src" or "_dst"'
+            );
+        }
     },
 
     bindEvents: function() {
@@ -340,7 +341,7 @@
             self.dataProviderOrig.indexOf(clicked_value), 1
         );
         self.filterList();
-        this.destinationList.generatePOST(true);
+        this.destinationList.generatePOST(this.BUILD_FULL_POST);
 
         return true;
     },
@@ -361,7 +362,7 @@
         } else {
             this.dataProviderOrig = [];
         }
-        this.destinationList.generatePOST(true);
+        this.destinationList.generatePOST(this.BUILD_FULL_POST);
         this.updateLayout();
     },
 
