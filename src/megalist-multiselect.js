@@ -9,19 +9,20 @@
     var srcElement, dstElement,
         srcMegalist, dstMegalist;
 
-    $('span', element).hide();
+    this.$el = element;
+    $('span', this.$el).hide();
 
     srcElement = $(
-        '<div class="megalist-inner" id="' + element.attr('id') +
+        '<div class="megalist-inner" id="' + this.$el.attr('id') +
         '_src"></div>'
-    ).appendTo(element);
+    ).appendTo(this.$el);
     dstElement = $(
-        '<div class="megalist-inner" id="' + element.attr('id') +
+        '<div class="megalist-inner" id="' + this.$el.attr('id') +
         '_dst"></div>'
-    ).appendTo(element);
+    ).appendTo(this.$el);
 
-    srcMegalist = srcElement.megalistSide(srcElement);
-    dstMegalist = dstElement.megalistSide(dstElement);
+    srcMegalist = srcElement.megalistSide(srcElement, this.$el);
+    dstMegalist = dstElement.megalistSide(dstElement, this.$el);
 
     srcMegalist.targetList = dstMegalist;
     dstMegalist.targetList = srcMegalist;
@@ -30,10 +31,10 @@
     dstMegalist.destinationList = dstMegalist;
   };
 
-  var MegalistSide = function(element, multiselectId) {
-    this.$el = null;
-    this.multiselectId = multiselectId;
-    this.init(element);
+  var MegalistSide = function(element, $parent) {
+    this.$el = element;
+    this.$parent = $parent;
+    this.init(this.$el);
     return this;
   };
 
@@ -161,10 +162,13 @@
     },
 
     bindData: function() {
-        this.$dataSpan = $('#' + this.name + '_data_' + this.suffix);
-
-        this.dataProviderOrig =  $.parseJSON(this.$dataSpan.text());
-        this.$dataSpan.detach()
+        this.origData = this.$parent.attr('data-provider-' + this.suffix);
+        if (this.origData.length){
+            this.dataProviderOrig =  $.parseJSON(this.origData);
+            this.$parent.attr('data-provider-' + this.suffix, '')
+        } else {
+            this.dataProviderOrig = {};
+        }
 
         this.dataProvider = this.dataProviderOrig;
 
@@ -855,7 +859,7 @@
    * ========================== */
 
   $.fn.megalistSide = function (option, params) {
-    return new MegalistSide(this);
+    return new MegalistSide(option, params);
   };
 
   $.fn.megalist = function (option, params) {

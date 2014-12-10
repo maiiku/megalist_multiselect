@@ -16,8 +16,8 @@
     <script src="../lib/less.js" type="text/javascript"></script>
     <script>
         $(document).ready( function() {
-            $('#my_megalist_data_src').html("[ "+createDataProvider(0).join(',')+" ]");
-            $('#my_megalist_data_dst').html("[ "+createDataProvider(1).join(',')+" ]");
+            $('#my_megalist').attr('data-provider-src', "[ "+createDataProvider(0).join(',')+" ]");
+            $('#my_megalist').attr('data-provider-dst', "[ "+createDataProvider(1).join(',')+" ]");
             $('#my_megalist').megalist();
         });
         function createDataProvider(offset) {
@@ -39,81 +39,7 @@
 
       <h3>Megalist Multiselect Demo</h3>
       <p>This list has 100k items as generated json array:</p>
-      <div id="my_megalist">
-        <span id="my_megalist_data_src" type="text">
-        [
-          {
-              label: 'item 1',
-              listValue: 1
-          },
-          {
-              label: 'item 2',
-              listValue: 2
-          },
-          {
-              label: 'item 3',
-              listValue: 3
-          },
-          {
-              label: 'item 4',
-              listValue: 4
-          },
-          {
-              label: 'item 5',
-              listValue: 5
-          },
-          {
-              label: 'item 6',
-              listValue: 6
-          },
-          {
-              label: 'item 7',
-              listValue: 7
-          },
-          {
-              label: 'item 8',
-              listValue: 8
-          }
-        ]
-        </span>
-
-        <span id="my_megalist_data_dst" type="text">
-        [
-          {
-              label: 'item 9',
-              listValue: 9
-          },
-          {
-              label: 'item 10',
-              listValue: 10
-          },
-          {
-              label: 'item 11',
-              listValue: 11
-          },
-          {
-              label: 'item 12',
-              listValue: 12
-          },
-          {
-              label: 'item 13',
-              listValue: 13
-          },
-          {
-              label: 'item 14',
-              listValue: 14
-          },
-          {
-              label: 'item 15',
-              listValue: 15
-          },
-          {
-              label: 'item 16',
-              listValue: 16
-          }
-        ]
-        </span>
-      </div>
+      <div id="my_megalist"></div>
       <p>First create the HTML Structure, then instantiate the list via javascript, and add an event handler:</p>
       <h4>Markup</h4>
       <pre class="prettyprint linenums">
