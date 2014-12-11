@@ -15,7 +15,7 @@
         this.$el.html('');
         this.$el.addClass('megalist-mutliselect');
 
-         //crate 2 containers for megalists and append them
+        //create 2 containers for megalists and append them
         srcElement = $( '<div/>', {
             id: this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
             class: 'megalist-inner'
@@ -24,11 +24,11 @@
             id: this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
             class: 'megalist-inner'
         });
-        moveButtons = $( '<div/>', {
+        this.$el.$moveButtons = $( '<div/>', {
             class: 'move-buttons'
         });
 
-        this.$el.append(srcElement, moveButtons, dstElement);
+        this.$el.append(srcElement, this.$el.$moveButtons, dstElement);
 
         this.srcMegalist = new Megalist(srcElement, this.$el);
         this.dstMegalist = new Megalist(dstElement, this.$el);
@@ -38,9 +38,6 @@
 
         this.srcMegalist.destinationList = this.dstMegalist;
         this.dstMegalist.destinationList = this.dstMegalist;
-
-        moveButtons.append(this.srcMegalist.$moveall);
-        moveButtons.append(this.dstMegalist.$moveall);
 
     } else {
         //else just init one of the megalistSide children
@@ -145,6 +142,8 @@
             '<svg width="32" height="32" viewBox="0 0 64 64">' +
             '<use xlink:href="#' + arrowIcon + '"></svg>')
         );
+        //attach to container in parent
+        this.$parent.$moveButtons.append(this.$moveall );
 
         this.$input = $('<input/>', {
             name: this.name,
