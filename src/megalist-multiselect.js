@@ -474,6 +474,12 @@
         return true;
     },
 
+    /**
+     * Handles click on "move all" button, move all items from one
+     * megalistSide to the other, renders POST result into hidden input field
+     * after the action is performed
+     *
+     */
     onMoveAll: function(){
         var out_data = this.dataProvider,
             i;
@@ -492,6 +498,13 @@
         this.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
         this.updateLayout();
     },
+
+    /**
+     * Handles drag event on scrollbar - binds events apporpoarate to user
+     * action and delgates event to correct function
+     *
+     * @param {event} event - mouse event on scrollbar
+     */
     onScrollbarStart: function(event) {
         var self = this;
 
@@ -510,6 +523,12 @@
         return false;
     },
 
+    /**
+     * Handles drag event on scroll bar and recalculates what items should be
+     * rendered in the viewport
+     *
+     * @param {event} event - scrollbar drag event to get coordinates from
+     */
     onScrollbarMove: function(event) {
         var newCoordinates = this.getInputCoordinates(event),
             height = this.$el.height(),
@@ -549,11 +568,21 @@
         return false;
     },
 
+    /**
+     * Utility function to remove events bound to the scrollbar
+     *
+     */
     unbindScrollbarEvents: function() {
         $(window).unbind('mousemove');
         $(window).unbind('mouseup');
     },
 
+    /**
+     * Handles click event on scroll bar backgoround - a click on scrollbar
+     * background should cause pageUp/PageDown action on the viewport
+     *
+     * @param {event} event - scrollbar click event to get coordinates from
+     */
     onScrollbarBackgroundClick: function(event) {
         var yOffset = event.offsetY !== undefined ? event.offsetY : event.originalEvent.layerY,
             scrollbarHeight = $(event.target).height(),
@@ -577,6 +606,10 @@
         this.updateLayout();
     },
 
+    /**
+     * Removes items rendered in megalist that no longer fit into the viewport
+     * and removed them form processed items cache
+     */
     cleanupListItems: function() {
         //remove any remaining LI elements hanging out on the dom
         var temp = [],
@@ -589,7 +622,7 @@
                 item.remove();
             }
         }
-        //cleanup totalItems array
+        //cleanup processedItems array
         if (this.processedItems) {
             for (index in this.processedItems) {
                 temp.push(this.processedItems[index]);
@@ -598,6 +631,12 @@
         this.totalItems = temp;
     },
 
+    /**
+     * Extracts input coordinates from the event
+     *
+     * @param {event} event - event to get coordinates from
+     * @return {object} result - object containge x and y coordinates
+     */
     getInputCoordinates: function (event) {
         var targetEvent = event,
             result = {
@@ -607,6 +646,15 @@
         return result;
     },
 
+    /**
+     * Main rendering function for megalist: redraws the list based on data
+     * fed to megalist and scrollbar position. Iterates over visible items
+     * and renders them then calls update on the scrollbar if ignoreScrollbar
+     * not set to true
+     *
+     * @param {boolean} ignoreScrollbar - a flag allowing scrollbar to not be
+     * redrawn if not necessary
+     */
     updateLayout: function(ignoreScrollbar) {
         var height = this.$el.height(),
             i = -1,
@@ -669,6 +717,10 @@
         }
     },
 
+    /**
+     * Renders the scrollbar as a part of UI update when list is scrolled or
+     * modified
+     */
     updateScrollBar: function() {
         var height = this.$el.height(),
             maxScrollbarHeight = height,
@@ -705,7 +757,7 @@
     },
 
     /**
-     * Utility function so set offset css on an item
+     * Utility function to set offset css on an item
      *
      * @param {object} item - megalist element
      * @param {int} x - x offset in pixels
@@ -751,14 +803,19 @@
         return item;
     },
 
+    /**
+     * Returns index of currently selected item
+     *
+     * @return {int} - index of item that was selected
+     */
     getSelectedIndex: function() {
         return parseInt(this.selectedIndex, 10);
     },
 
     /**
-     * Clears currently slected object by removing styling and setting internal
-     * variable pointing to currently selected item to -1
+     * Sets item at given index as selected and adds appropriate styling to it
      *
+     * @param {int} index = index of item that was selected
      */
     setSelectedIndex: function(index) {
         var item = this.getItemAtIndex(this.selectedIndex);
