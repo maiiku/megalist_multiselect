@@ -85,12 +85,12 @@
     /**
      * Sets default options and extends them if configuration was provided on
      * megalist initalization
-     * 
+     *
      * @param {object} options - object containing options for megalist
      */
     setOptions: function(options){
         var conf = {};
-        
+
         conf.SCROLLBAR_BORDER = 1;
         conf.SCROLLBAR_MIN_SIZE = 10;
         conf.RESIZE_TIMEOUT_DELAY = 100;
@@ -629,6 +629,8 @@
                 if (ignoreScrollbar !== true && parentLength > 0) {
                     this.updateScrollBar();
                 }
+            } else {
+                this.$scrollbar.detach();
             }
         }
     },
