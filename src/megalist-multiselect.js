@@ -1,12 +1,16 @@
-!function( $ ){
-
+!function($){
   'use strict';
+
+  // injecting svg arrow icons into dom
+  $(document).ready(function() {
+    $('body').append('<svg style="display: none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"> <path id="arrow-left" d="M48 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771zM32 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771z"></path> <path id="arrow-right" d="M29.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76zM13.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76z"></path> </svg>');
+    });
 
  /* LIST CLASS DEFINITION
   * ========================= */
 
   var Megalist = function(element, $parent) {
-    var srcElement, dstElement;
+    var srcElement, dstElement, moveButtons;
 
     if ($parent === undefined){
         //if there's no $parent then we are creating one
@@ -14,6 +18,7 @@
 
         this.$el = element;
         this.$el.html('');
+        this.$el.addClass('megalist-mutliselect');
 
          //crate 2 containers for megalists and append them
         srcElement = $( '<div/>', {
@@ -24,7 +29,11 @@
             id: this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
             class: 'megalist-inner'
         });
-        this.$el.append(srcElement, dstElement);
+        moveButtons = $( '<div/>', {
+            class: 'move-buttons'
+        });
+
+        this.$el.append(srcElement, moveButtons, dstElement);
 
         this.srcMegalist = new Megalist(srcElement, this.$el);
         this.dstMegalist = new Megalist(dstElement, this.$el);
@@ -34,6 +43,10 @@
 
         this.srcMegalist.destinationList = this.dstMegalist;
         this.dstMegalist.destinationList = this.dstMegalist;
+
+        moveButtons.append(this.srcMegalist.$moveall);
+        moveButtons.append(this.dstMegalist.$moveall);
+
     } else {
         //else just init one of the megalistSide children
         this.init(element, $parent);
@@ -111,6 +124,12 @@
      * searchbox, scrollbar, move button and hidden result input
      */
     buildDOM: function() {
+        var arrowIcon = 'arrow-left';
+
+        if (this.suffix === this.conf.SOURCE_SUFFIX) {
+            arrowIcon = 'arrow-right';
+        }
+
         this.$el.wrap('<div class="megalist"></div>"');
 
         this.$search = $('<input/>', {
@@ -125,11 +144,13 @@
         this.$scrollbarBackground = $('<div/>', {
             class: 'scrollbar-background'
         });
-        this.$moveall = $('<input/>', {
-            class: 'button',
-            type: 'button',
-            value: 'move all'
-        });
+        this.$moveall = $('<div/>', {
+            class: 'move-button ' + arrowIcon,
+        }).append($(
+            '<svg width="32" height="32" viewBox="0 0 64 64">' +
+            '<use xlink:href="#' + arrowIcon + '"></svg>')
+        );
+
         this.$input = $('<input/>', {
             name: this.name,
             type: 'hidden'
@@ -138,8 +159,7 @@
 
         this.$el.before(this.$search)
                 .append(this.$ul, this.$scrollbar)
-                .append(this.$ul, this.$scrollbarBackground)
-                .after(this.$moveall);
+                .append(this.$ul, this.$scrollbarBackground);
 
         // Set tabindex, so the element can be in focus
         this.$el.attr('tabindex', '-1');
@@ -160,11 +180,6 @@
             this.suffix = this.conf.SOURCE_SUFFIX;
         } else if (lastToken === this.conf.DESTINATION_SUFFIX) {
             this.suffix = this.conf.DESTINATION_SUFFIX;
-        } else {
-            console.log(
-                'Ids of multiselect widget elements must end with' +
-                '"_src" or "_dst"'
-            );
         }
     },
 
@@ -524,7 +539,7 @@
         );
         newYPosition = Math.max(0, newYPosition);
         newYPosition = Math.min(
-            newYPosition, totalHeight - height - scrollbarHeight
+            newYPosition, totalHeight - height
         );
 
         this.yPosition = newYPosition;
@@ -545,7 +560,7 @@
             clickPosition = yOffset / scrollbarHeight,
             listTotalHeight = this.dataProvider.length * this.itemHeight,
             currentPosition = this.yPosition / listTotalHeight,
-            offsetToMove = this.pageHeight - this.itemHeight + 3;  // FIXME +3 ?
+            offsetToMove = this.pageHeight - this.itemHeight + 5;  // FIXME +5?
 
         if (clickPosition > currentPosition) {
             this.yPosition += offsetToMove;
