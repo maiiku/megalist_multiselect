@@ -16,9 +16,12 @@
     <script src="../lib/less.js" type="text/javascript"></script>
     <script>
         $(document).ready( function() {
+            var options = {
+                BUILD_FULL_POST : false
+            };
             $('#my_megalist').attr('data-provider-src', "[ "+createDataProvider(0).join(',')+" ]");
             $('#my_megalist').attr('data-provider-dst', "<select multiple> "+createDataProviderSelect(1).join('')+" </select>");
-            $('#my_megalist').megalist();
+            $('#my_megalist').megalist(options);
         });
         function createDataProvider(offset) {
             var result = [],

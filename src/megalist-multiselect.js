@@ -58,13 +58,6 @@
         this.$el = element;
         this.$parent = $parent;
 
-        this.SCROLLBAR_BORDER = 1;
-        this.SCROLLBAR_MIN_SIZE = 10;
-        this.RESIZE_TIMEOUT_DELAY = 100;
-        this.MINIMUM_SEARCH_QUERY_SIZE = 2;
-        this.BUILD_FULL_POST = true;
-        this.MOVE_ACTION_NAME = 'move';
-
         //defaults
         this.processedItems = {};
         this.totalItems = [];
@@ -75,6 +68,7 @@
         this.filteredData = [];
 
         //init widget
+        this.setOptions(this.$parent.options);
         this.getSuffix();
         this.buildDOM();
         this.bindEvents();
@@ -82,10 +76,31 @@
         this.updateLayout();
 
         if (this.suffix === this.DESTINATION_SUFFIX) {
-            this.generatePOST(this.BUILD_FULL_POST);
+            this.generatePOST(this.conf.BUILD_FULL_POST);
         }
 
         return this;
+    },
+
+    /**
+     * Sets default options and extends them if configuration was provided on
+     * megalist initalization
+     * 
+     * @param {object} options - object containing options for megalist
+     */
+    setOptions: function(options){
+        var conf = {};
+        
+        conf.SCROLLBAR_BORDER = 1;
+        conf.SCROLLBAR_MIN_SIZE = 10;
+        conf.RESIZE_TIMEOUT_DELAY = 100;
+        conf.MINIMUM_SEARCH_QUERY_SIZE = 2;
+        conf.BUILD_FULL_POST = true;
+        conf.MOVE_ACTION_NAME = 'move';
+        if (typeof options === 'object'){
+            conf = $.extend(conf, options);
+        }
+        this.conf = conf;
     },
 
     /**
@@ -272,7 +287,7 @@
         this.yPosition = Math.min(this.yPosition, maxPosition);
         this.reizeTimeout = setTimeout(function() {
             self.updateLayout();
-        }, this.RESIZE_TIMEOUT_DELAY);
+        }, this.conf.RESIZE_TIMEOUT_DELAY);
     },
 
     /**
@@ -281,7 +296,7 @@
     */
     onKeydown: function (event) {
         var delta = 0,
-            action = this.MOVE_ACTION_NAME,
+            action = this.conf.MOVE_ACTION_NAME,
             self = this,
             oldindex = this.getSelectedIndex(),
             index = oldindex + delta;
@@ -437,7 +452,7 @@
             self.dataProviderOrig.indexOf(clicked_value), 1
         );
         self.filterList();
-        this.destinationList.generatePOST(this.BUILD_FULL_POST);
+        this.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
 
         return true;
     },
@@ -458,7 +473,7 @@
         } else {
             this.dataProviderOrig = [];
         }
-        this.destinationList.generatePOST(this.BUILD_FULL_POST);
+        this.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
         this.updateLayout();
     },
     onScrollbarStart: function(event) {
@@ -496,24 +511,24 @@
 
         yPosition -= yDelta;
 
-        yPosition = Math.max(yPosition, this.SCROLLBAR_BORDER);
+        yPosition = Math.max(yPosition, this.conf.SCROLLBAR_BORDER);
         yPosition = Math.min(
             yPosition,
-            height - this.SCROLLBAR_BORDER - scrollbarHeight
+            height - this.conf.SCROLLBAR_BORDER - scrollbarHeight
         );
 
         this.$scrollbar.css('top', yPosition);
         this.scrollbarInputCoordinates = newCoordinates;
 
         newYPosition = (
-            (yPosition - this.SCROLLBAR_BORDER) /
-            (height - (2 * this.SCROLLBAR_BORDER) - scrollbarHeight) *
+            (yPosition - this.conf.SCROLLBAR_BORDER) /
+            (height - (2 * this.conf.SCROLLBAR_BORDER) - scrollbarHeight) *
             (this.itemHeight * this.dataProvider.length - 1)
         );
         newYPosition = Math.max(0, newYPosition);
         newYPosition = Math.min(
             newYPosition,
-            totalHeight - (height - (2 * this.SCROLLBAR_BORDER) - scrollbarHeight)
+            totalHeight - (height - (2 * this.conf.SCROLLBAR_BORDER) - scrollbarHeight)
         );
 
         this.yPosition = newYPosition;
@@ -620,26 +635,26 @@
 
     updateScrollBar: function() {
         var height = this.$el.height(),
-            maxScrollbarHeight = height - (2 * this.SCROLLBAR_BORDER),
+            maxScrollbarHeight = height - (2 * this.conf.SCROLLBAR_BORDER),
             maxItemsHeight = (this.dataProvider.length) * this.itemHeight,
             targetHeight = maxScrollbarHeight * Math.min(
                 maxScrollbarHeight / maxItemsHeight, 1
             ),
-            actualHeight = Math.max(targetHeight, this.SCROLLBAR_MIN_SIZE),
+            actualHeight = Math.max(targetHeight, this.conf.SCROLLBAR_MIN_SIZE),
             scrollPosition = (
-                this.SCROLLBAR_BORDER + (
+                this.conf.SCROLLBAR_BORDER + (
                     this.yPosition / (maxItemsHeight - height) *
                     (maxScrollbarHeight - actualHeight)
                 )
             ),
             parent = this.$scrollbar.parent();
 
-        if (scrollPosition < this.SCROLLBAR_BORDER) {
+        if (scrollPosition < this.conf.SCROLLBAR_BORDER) {
             actualHeight = Math.max(actualHeight + scrollPosition, 0);
-            scrollPosition = this.SCROLLBAR_BORDER;
+            scrollPosition = this.conf.SCROLLBAR_BORDER;
         } else if (scrollPosition > (height - actualHeight)) {
             actualHeight = Math.min(
-                actualHeight, height - scrollPosition + this.SCROLLBAR_BORDER
+                actualHeight, height - scrollPosition + this.conf.SCROLLBAR_BORDER
             );
         }
 
@@ -708,6 +723,11 @@
         return parseInt(this.selectedIndex, 10);
     },
 
+    /**
+     * Clears currently slected object by removing styling and setting internal
+     * variable pointing to currently selected item to -1
+     *
+     */
     setSelectedIndex: function(index) {
         var item = this.getItemAtIndex(this.selectedIndex);
 
@@ -719,6 +739,11 @@
         this.getItemAtIndex(index).addClass('megalistSelected');
     },
 
+    /**
+     * Clears currently slected object by removing styling and setting internal
+     * variable pointing to currently selected item to -1
+     *
+     */
     clearSelectedIndex: function() {
         var item = this.getItemAtIndex(this.selectedIndex);
 
@@ -786,7 +811,7 @@
         var self = this,
             searchQuery = this.$search.val().toLowerCase().trim(),
             searchTokens = searchQuery.split(' '),
-            isQueryValid = searchQuery.length < this.MINIMUM_SEARCH_QUERY_SIZE,
+            isQueryValid = searchQuery.length < this.conf.MINIMUM_SEARCH_QUERY_SIZE,
             i;
 
         this.filteredData = [];
@@ -876,6 +901,7 @@
    * ========================== */
 
   $.fn.megalist = function (option, params) {
+    if (typeof option === 'object') { this.options = option;}
     var multiselect = new Megalist(this);
     if (typeof option === 'string') { this.result = multiselect[option](params); }
     return this;
