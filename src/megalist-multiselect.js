@@ -8,9 +8,10 @@
   var Megalist = function(element, $parent) {
     var srcElement, dstElement;
 
-    if ($parent == undefined){
+    if ($parent === undefined){
         //if there's no $parent then we are creating one
         this.setOptions(element.options);
+
         this.$el = element;
         this.$el.html('');
 
@@ -73,6 +74,8 @@
         this.bindData();
         this.updateLayout();
 
+        this.pageHeight = this.$ul.parent().height();
+
         if (this.suffix === this.conf.DESTINATION_SUFFIX) {
             this.generatePOST(this.conf.BUILD_FULL_POST);
         }
@@ -89,7 +92,6 @@
     setOptions: function(options){
         var conf = {};
 
-        conf.SCROLLBAR_BORDER = 1;
         conf.SCROLLBAR_MIN_SIZE = 10;
         conf.RESIZE_TIMEOUT_DELAY = 100;
         conf.MINIMUM_SEARCH_QUERY_SIZE = 2;
@@ -109,25 +111,26 @@
      * searchbox, scrollbar, move button and hidden result input
      */
     buildDOM: function() {
-        var scrollbarWidth;
-
         this.$el.wrap('<div class="megalist"></div>"');
 
-        this.$search = $( '<input/>', {
+        this.$search = $('<input/>', {
             id: this.$el.attr('id') + '_search',
             placeholder: 'Search',
             type: 'text'
         });
-        this.$scrollbar = $( '<div/>', {
+        this.$scrollbar = $('<div/>', {
             id: this.$el.attr('id') + '_scrollbar',
             class: 'scrollbar'
         });
-        this.$moveall = $( '<input/>', {
+        this.$scrollbarBackground = $('<div/>', {
+            class: 'scrollbar-background'
+        });
+        this.$moveall = $('<input/>', {
             class: 'button',
             type: 'button',
             value: 'move all'
         });
-        this.$input = $( '<input/>', {
+        this.$input = $('<input/>', {
             name: this.name,
             type: 'hidden'
         });
@@ -135,15 +138,11 @@
 
         this.$el.before(this.$search)
                 .append(this.$ul, this.$scrollbar)
+                .append(this.$ul, this.$scrollbarBackground)
                 .after(this.$moveall);
-
-        this.$ul.css('visibility', 'visible');
 
         // Set tabindex, so the element can be in focus
         this.$el.attr('tabindex', '-1');
-
-        scrollbarWidth = parseInt(this.$scrollbar.css('width'), 10);
-        this.$scrollbar.css('width', 1.25 * scrollbarWidth);
     },
 
     /**
@@ -200,6 +199,10 @@
              self.onScrollbarStart(event);
         });
 
+        this.$scrollbarBackground.click(function(event) {
+             self.onScrollbarBackgroundClick(event);
+        });
+
         this.$moveall.click(function(event) {
             self.onMoveAll(event);
         });
@@ -219,7 +222,7 @@
         this.origData = this.$parent.attr('data-provider-' + this.suffix);
         if (this.origData.length){
             this.dataProviderOrig =  this.parseData(this.origData);
-            this.$parent.attr('data-provider-' + this.suffix, '')
+            this.$parent.attr('data-provider-' + this.suffix, '');
         } else {
             this.dataProviderOrig = {};
         }
@@ -260,11 +263,11 @@
               selected = ':selected';
           }
            $.map($('option', origData).filter(selected), function(opt){
-               item["listValue"] = opt.value;
-               item["label"] = opt.text;
-               parsed.push(item)
+               item.listValue = opt.value;
+               item.label = opt.text;
+               parsed.push(item);
                item = {};
-           })
+           });
         } else if ((origData.indexOf('<select') > -1)){
             console.log('ERROR: the supplied string MUST start with <select');
         }
@@ -276,10 +279,8 @@
      * Updates responsive mutliselect on window resize by recalculating new
      * sizing and redrawing megalistSide widgets. Updating has some inertia
      * added resizing only after RESIZE_TIMEOUT_DELAY is reached
-     *
-     * @param {event} event - window resize event
      */
-    onResize: function(event) {
+    onResize: function() {
         clearTimeout(this.reizeTimeout);
         var self = this,
             totalHeight = this.dataProvider.length * this.itemHeight,
@@ -458,9 +459,8 @@
         return true;
     },
 
-    onMoveAll: function(event){
-        var action = 'change',
-            out_data = this.dataProvider,
+    onMoveAll: function(){
+        var out_data = this.dataProvider,
             i;
 
         this.targetList.updateDataProvider(out_data);
@@ -487,7 +487,7 @@
              self.onScrollbarMove(event);
         });
 
-        $(window).bind('mouseup', function(event) {
+        $(window).bind('mouseup', function() {
              self.unbindScrollbarEvents();
         });
 
@@ -512,24 +512,19 @@
 
         yPosition -= yDelta;
 
-        yPosition = Math.max(yPosition, this.conf.SCROLLBAR_BORDER);
-        yPosition = Math.min(
-            yPosition,
-            height - this.conf.SCROLLBAR_BORDER - scrollbarHeight
-        );
+        yPosition = Math.max(yPosition, 0);
+        yPosition = Math.min(yPosition, height - scrollbarHeight);
 
         this.$scrollbar.css('top', yPosition);
         this.scrollbarInputCoordinates = newCoordinates;
 
         newYPosition = (
-            (yPosition - this.conf.SCROLLBAR_BORDER) /
-            (height - (2 * this.conf.SCROLLBAR_BORDER) - scrollbarHeight) *
+            yPosition / (height - scrollbarHeight) *
             (this.itemHeight * this.dataProvider.length - 1)
         );
         newYPosition = Math.max(0, newYPosition);
         newYPosition = Math.min(
-            newYPosition,
-            totalHeight - (height - (2 * this.conf.SCROLLBAR_BORDER) - scrollbarHeight)
+            newYPosition, totalHeight - height - scrollbarHeight
         );
 
         this.yPosition = newYPosition;
@@ -542,6 +537,29 @@
     unbindScrollbarEvents: function() {
         $(window).unbind('mousemove');
         $(window).unbind('mouseup');
+    },
+
+    onScrollbarBackgroundClick: function(event) {
+        var yOffset = event.offsetY !== undefined ? event.offsetY : event.originalEvent.layerY,
+            scrollbarHeight = $(event.target).height(),
+            clickPosition = yOffset / scrollbarHeight,
+            listTotalHeight = this.dataProvider.length * this.itemHeight,
+            currentPosition = this.yPosition / listTotalHeight,
+            offsetToMove = this.pageHeight - this.itemHeight + 3;  // FIXME +3 ?
+
+        if (clickPosition > currentPosition) {
+            this.yPosition += offsetToMove;
+        } else{
+            this.yPosition -= offsetToMove;
+        }
+
+        if (this.yPosition > listTotalHeight - this.pageHeight) {
+            this.yPosition = listTotalHeight - this.pageHeight;
+        } else if (this.yPosition < 0) {
+            this.yPosition = 0;
+        }
+
+        this.updateLayout();
     },
 
     cleanupListItems: function() {
@@ -638,27 +656,23 @@
 
     updateScrollBar: function() {
         var height = this.$el.height(),
-            maxScrollbarHeight = height - (2 * this.conf.SCROLLBAR_BORDER),
+            maxScrollbarHeight = height,
             maxItemsHeight = (this.dataProvider.length) * this.itemHeight,
             targetHeight = maxScrollbarHeight * Math.min(
                 maxScrollbarHeight / maxItemsHeight, 1
             ),
             actualHeight = Math.max(targetHeight, this.conf.SCROLLBAR_MIN_SIZE),
             scrollPosition = (
-                this.conf.SCROLLBAR_BORDER + (
-                    this.yPosition / (maxItemsHeight - height) *
-                    (maxScrollbarHeight - actualHeight)
-                )
+                this.yPosition / (maxItemsHeight - height) *
+                (maxScrollbarHeight - actualHeight)
             ),
             parent = this.$scrollbar.parent();
 
-        if (scrollPosition < this.conf.SCROLLBAR_BORDER) {
+        if (scrollPosition < 0) {
             actualHeight = Math.max(actualHeight + scrollPosition, 0);
-            scrollPosition = this.conf.SCROLLBAR_BORDER;
+            scrollPosition = 0;
         } else if (scrollPosition > (height - actualHeight)) {
-            actualHeight = Math.min(
-                actualHeight, height - scrollPosition + this.conf.SCROLLBAR_BORDER
-            );
+            actualHeight = Math.min(actualHeight, height - scrollPosition);
         }
 
         this.$scrollbar.height(actualHeight);
@@ -704,7 +718,7 @@
             if (this.listItems[iString] === null ||
                 this.listItems[iString] === undefined
             ) {
-                item = $('<li class="megalistItem" />');
+                item = $('<li />');
                 this.listItems[iString] = item;
             } else {
                 item = $(this.listItems[i]);
@@ -882,7 +896,7 @@
               result[name] = postData;
               result = decodeURIComponent($.param(result, true ));
               //cut out first name so that the post will not contain repetition
-              result=result.slice(this.name.length+1, result.length)
+              result = result.slice(this.name.length + 1, result.length);
               this.$input.val(result);
           } else {
               result = postData.join(',');
