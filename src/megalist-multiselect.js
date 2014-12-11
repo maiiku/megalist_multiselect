@@ -62,7 +62,7 @@
         this.SCROLLBAR_MIN_SIZE = 10;
         this.RESIZE_TIMEOUT_DELAY = 100;
         this.MINIMUM_SEARCH_QUERY_SIZE = 2;
-        this.BUILD_FULL_POST = false;
+        this.BUILD_FULL_POST = true;
         this.MOVE_ACTION_NAME = 'move';
 
         //defaults
@@ -400,6 +400,11 @@
         return false;
     },
 
+    /**
+     * Handles click event on megalist element
+     *
+     * @param {event} event - mouse wheel event
+     */
     processListClick: function(event) {
         var self = this,
             target = event.target,
@@ -839,7 +844,7 @@
       var i,
           postData = [],
           result = {},
-          name = this.name + '[]';
+          name = this.name;
 
       if (this.suffix === this.DESTINATION_SUFFIX){
           for (i = 0; i < this.dataProviderOrig.length; i++) {
@@ -847,7 +852,9 @@
           }
           if (full === true){
               result[name] = postData;
-              result = decodeURIComponent($.param(result));
+              result = decodeURIComponent($.param(result, true ));
+              //cut out first name so that the post will not contain repetition
+              result=result.slice(this.name.length+1, result.length)
               this.$input.val(result);
           } else {
               result = postData.join(',');
