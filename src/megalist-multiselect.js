@@ -8,22 +8,19 @@
   var Megalist = function(element, $parent) {
     var srcElement, dstElement;
 
-    //functional suffixes for multiselect
-    this.DESTINATION_SUFFIX = 'dst';
-    this.SOURCE_SUFFIX = 'src';
-
-      if ($parent == undefined){
+    if ($parent == undefined){
+        //if there's no $parent then we are creating one
+        this.setOptions(element.options);
         this.$el = element;
-
         this.$el.html('');
 
          //crate 2 containers for megalists and append them
         srcElement = $( '<div/>', {
-            id: this.$el.attr('id') + '_' + this.SOURCE_SUFFIX,
+            id: this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
             class: 'megalist-inner'
         });
         dstElement = $( '<div/>', {
-            id: this.$el.attr('id') + '_' + this.DESTINATION_SUFFIX,
+            id: this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
             class: 'megalist-inner'
         });
         this.$el.append(srcElement, dstElement);
@@ -37,6 +34,7 @@
         this.srcMegalist.destinationList = this.dstMegalist;
         this.dstMegalist.destinationList = this.dstMegalist;
     } else {
+        //else just init one of the megalistSide children
         this.init(element, $parent);
     }
     return this;
@@ -75,7 +73,7 @@
         this.bindData();
         this.updateLayout();
 
-        if (this.suffix === this.DESTINATION_SUFFIX) {
+        if (this.suffix === this.conf.DESTINATION_SUFFIX) {
             this.generatePOST(this.conf.BUILD_FULL_POST);
         }
 
@@ -97,6 +95,9 @@
         conf.MINIMUM_SEARCH_QUERY_SIZE = 2;
         conf.BUILD_FULL_POST = true;
         conf.MOVE_ACTION_NAME = 'move';
+        //functional suffixes for multiselect
+        conf.DESTINATION_SUFFIX = 'dst';
+        conf.SOURCE_SUFFIX = 'src';
         if (typeof options === 'object'){
             conf = $.extend(conf, options);
         }
@@ -156,10 +157,10 @@
         lastToken = id_tokens[id_tokens.length - 1];
         this.name = id_tokens.splice(id_tokens, id_tokens.length-1).join('_');
 
-        if (lastToken === this.SOURCE_SUFFIX) {
-            this.suffix = this.SOURCE_SUFFIX;
-        } else if (lastToken === this.DESTINATION_SUFFIX) {
-            this.suffix = this.DESTINATION_SUFFIX;
+        if (lastToken === this.conf.SOURCE_SUFFIX) {
+            this.suffix = this.conf.SOURCE_SUFFIX;
+        } else if (lastToken === this.conf.DESTINATION_SUFFIX) {
+            this.suffix = this.conf.DESTINATION_SUFFIX;
         } else {
             console.log(
                 'Ids of multiselect widget elements must end with' +
@@ -255,7 +256,7 @@
         }
         //ok, maybe it's being fed <option>s from an old select?
         if (origData.substr(0, 7) == '<select'){
-          if (this.suffix === this.DESTINATION_SUFFIX) {
+          if (this.suffix === this.conf.DESTINATION_SUFFIX) {
               selected = ':selected';
           }
            $.map($('option', origData).filter(selected), function(opt){
@@ -871,7 +872,7 @@
           result = {},
           name = this.name;
 
-      if (this.suffix === this.DESTINATION_SUFFIX){
+      if (this.suffix === this.conf.DESTINATION_SUFFIX){
           for (i = 0; i < this.dataProviderOrig.length; i++) {
               postData[i] = this.dataProviderOrig[i].listValue;
           }
