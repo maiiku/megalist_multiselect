@@ -739,7 +739,7 @@
 
         if (this.dataProvider.length > 0) {
             this.$ul.detach();
-            this.setItemPosition(this.$ul, 0, -this.yPosition);
+            //this.setItemPosition(this.$ul, 0, 0);
             this.processedItems = {};
 
             while (i * this.itemHeight < maxHeight) {
@@ -752,7 +752,7 @@
                 this.totalItems.push(item);
 
                 this.processedItems[index.toString()] = item;
-                currentPosition = (startPosition + i) * this.itemHeight;
+                currentPosition = i * this.itemHeight;
                 this.setItemPosition(item, 0, currentPosition);
 
                 if (item.parent().length <= 0) {
