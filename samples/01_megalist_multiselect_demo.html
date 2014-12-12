@@ -16,7 +16,8 @@
     <script>
         $(document).ready( function() {
             var options = {
-                BUILD_FULL_POST : false
+                BUILD_FULL_POST : false,
+                PLACEHOLDER_TEXT: "Search Items"
             };
             $('#my_megalist').attr('data-provider-src', "[ "+createDataProvider(0).join(',')+" ]");
             $('#my_megalist').attr('data-provider-dst', "<select multiple> "+createDataProviderSelect(1).join('')+" </select>");

@@ -72,20 +72,22 @@
     setOptions: function(options){
         var conf = {};
 
-        //mimimum scrollbar height in pixels
+        // mimimum scrollbar height in pixels
         conf.SCROLLBAR_MIN_SIZE = 10;
-        //inertial delay for megalist ui update after resize event occurs
+        // inertial delay for megalist ui update after resize event occurs
         conf.RESIZE_TIMEOUT_DELAY = 100;
-        //minimum characters to trigger quicksearch filtering
+        // minimum characters to trigger quicksearch filtering
         conf.MINIMUM_SEARCH_QUERY_SIZE = 2;
-        //build full or simple (comma separated ids) post
+        // build full or simple (comma separated ids) post
         conf.BUILD_FULL_POST = true;
-        //move action event name to trigger
+        // move action event name to trigger
         conf.MOVE_ACTION_NAME = 'move';
         //functional suffixes for multiselect: destination list suffix
         conf.DESTINATION_SUFFIX = 'dst';
-        //functional suffixes for multiselect: source list suffix
+        // functional suffixes for multiselect: source list suffix
         conf.SOURCE_SUFFIX = 'src';
+        // text to display as search input placeholder
+        conf.PLACEHOLDER_TEXT = 'Search';
 
         if (typeof options === 'object'){
             conf = $.extend(conf, options);
@@ -136,7 +138,7 @@
 
         this.$search = $('<input/>', {
             id: this.$el.attr('id') + '_search',
-            placeholder: 'Search',
+            placeholder: this.conf.PLACEHOLDER_TEXT,
             type: 'text'
         });
         this.$scrollbar = $('<div/>', {
