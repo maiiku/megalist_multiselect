@@ -501,6 +501,11 @@
         self.dataProviderOrig.splice(
             self.dataProviderOrig.indexOf(clicked_value), 1
         );
+
+        if (this.yPosition > this.getMaxPosition()) {
+            this.yPosition -= this.itemHeight;
+        }
+
         self.filterList();
         this.$parent.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
 
@@ -982,8 +987,7 @@
             $(this).remove();
         });
 
-        this.yPosition = 0;
-        this.itemHeight = 0;
+        this.yPosition = this.getMaxPosition();
         this.updateLayout();
     },
 
@@ -995,6 +999,18 @@
      */
     getDataProvider: function() {
         return this.dataProvider;
+    },
+
+    /**
+     * Get maximum value of yPosition
+     *
+     * @return {int} maximum value of yPosition
+     */
+    getMaxPosition: function() {
+        var height = this.$el.height(),
+            totalHeight = this.dataProvider.length * this.itemHeight;
+
+        return totalHeight - height;
     },
 
     /**

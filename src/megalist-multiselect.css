@@ -7,7 +7,7 @@
 }
 .megalist-mutliselect .megalist {
   float: left;
-  width: 300px;
+  width: 285px;
 }
 .megalist-mutliselect .megalist input[type=text] {
   -webkit-box-sizing: border-box;
@@ -49,6 +49,7 @@
   border-top: 1px solid #EDEDED;
   line-height: 1em !important;
   cursor: pointer;
+  color: #555;
 }
 .megalist-mutliselect .megalist .megalist-inner ul li:hover {
   background-color: #08c;
