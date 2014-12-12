@@ -65,6 +65,7 @@
         this.suffix = undefined;
         this.yPosition = 0;
         this.filteredData = [];
+        this.pageHeight = 0;
 
         //init widget
         this.setOptions(this.$parent.options);
@@ -73,12 +74,7 @@
         this.bindEvents();
         this.bindData();
         this.updateLayout();
-
-        this.pageHeight = this.$ul.parent().height();
-
-        if (this.suffix === this.conf.DESTINATION_SUFFIX) {
-            this.generatePOST(this.conf.BUILD_FULL_POST);
-        }
+        this.generatePOST(this.conf.BUILD_FULL_POST);
 
         return this;
     },
@@ -152,6 +148,8 @@
 
         // Set tabindex, so the element can be in focus
         this.$el.attr('tabindex', '-1');
+        //set new page hight after DOM creation
+        this.pageHeight = this.$ul.parent().height();
     },
 
     /**
@@ -173,8 +171,10 @@
     },
 
     /**
-     * Resolves suffix for megalistSide so that it know if it's source or
-     * destination side. Resolving is based on id of the container
+     * Returns targetList for current megalistSide. In not defined, gets proper
+     * one from $parent first and stores it for later use
+     *
+     * @return {object} - returns target list
      */
     getTargetList: function() {
         if (this.targetList !== 'object'){
