@@ -15,7 +15,7 @@
         this.$el.html('');
         this.$el.addClass('megalist-mutliselect');
 
-        //create 2 containers for megalists and append them
+        //create 2 containers for megalists and buttons between then append them
         srcElement = $( '<div/>', {
             id: this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
             class: 'megalist-inner'
@@ -27,17 +27,12 @@
         this.$el.$moveButtons = $( '<div/>', {
             class: 'move-buttons'
         });
-
         this.$el.append(srcElement, this.$el.$moveButtons, dstElement);
 
-        this.srcMegalist = new Megalist(srcElement, this.$el);
-        this.dstMegalist = new Megalist(dstElement, this.$el);
-
-        this.srcMegalist.targetList = this.dstMegalist;
-        this.dstMegalist.targetList = this.srcMegalist;
-
-        this.srcMegalist.destinationList = this.dstMegalist;
-        this.dstMegalist.destinationList = this.dstMegalist;
+        //source list - data to choose from
+        this.$el.sourceList = new Megalist(srcElement, this.$el);
+        //destination list - data chosen by user
+        this.$el.destinationList = new Megalist(dstElement, this.$el);
 
     } else {
         //else just init one of the megalistSide children
@@ -175,6 +170,21 @@
         } else if (lastToken === this.conf.DESTINATION_SUFFIX) {
             this.suffix = this.conf.DESTINATION_SUFFIX;
         }
+    },
+
+    /**
+     * Resolves suffix for megalistSide so that it know if it's source or
+     * destination side. Resolving is based on id of the container
+     */
+    getTargetList: function() {
+        if (this.targetList !== 'object'){
+            if ( this.suffix === this.conf.SOURCE_SUFFIX) {
+                this.targetList = this.$parent.destinationList;
+            } else if ( this.suffix === this.conf.DESTINATION_SUFFIX) {
+                this.targetList = this.$parent.sourceList;
+            }
+        }
+        return this.targetList;
     },
 
     /**
@@ -455,7 +465,7 @@
 
         this.setSelectedIndex(index);
 
-        this.targetList.updateDataProvider(out_data);
+        this.getTargetList().updateDataProvider(out_data);
 
         self.clearSelectedIndex();
 
@@ -463,7 +473,7 @@
             self.dataProviderOrig.indexOf(clicked_value), 1
         );
         self.filterList();
-        this.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
+        this.$parent.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
 
         return true;
     },
@@ -478,7 +488,7 @@
         var out_data = this.dataProvider,
             i;
 
-        this.targetList.updateDataProvider(out_data);
+        this.getTargetList().updateDataProvider(out_data);
 
         this.clearSelectedIndex();
         this.dataProvider = [];
@@ -489,7 +499,7 @@
         } else {
             this.dataProviderOrig = [];
         }
-        this.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
+        this.$parent.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
         this.updateLayout();
     },
 
