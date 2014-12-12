@@ -122,6 +122,7 @@
         this.$el.$moveButtons = $( '<div/>', {
             'class': 'move-buttons'
         });
+
         this.$el.append(srcElement, this.$el.$moveButtons, dstElement);
 
         return {srcElement:srcElement, dstElement:dstElement};
@@ -156,10 +157,14 @@
             'class': 'move-button ' + arrowIcon
         }).append($(
             '<svg width="32" height="32" viewBox="0 0 64 64">' +
-            '<use xlink:href="#' + arrowIcon + '"></svg>')
-        );
+            '<use xlink:href="#' + arrowIcon + '"></svg>'
+        ));
         //attach to container in parent
-        this.$parent.$moveButtons.append(this.$moveall );
+        this.$parent.$moveButtons.append(this.$moveall);
+
+        if (!Modernizr.svg) {
+            this.$moveall.addClass('no-svg');
+        }
 
         this.$input = $('<input/>', {
             'name': this.name,
