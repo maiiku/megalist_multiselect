@@ -167,9 +167,7 @@
         });
         this.$ul = $('<ul />');
 
-        this.$el.before(this.$search)
-                .append(this.$ul, this.$scrollbar)
-                .append(this.$ul, this.$scrollbarBackground);
+        this.$el.before(this.$search);
 
         // Set tabindex, so the element can be in focus
         this.$el.attr('tabindex', '-1');
@@ -777,7 +775,7 @@
                     this.updateScrollBar();
                 }
             } else {
-                this.$scrollbar.detach();
+                this.hideScrollbar();
             }
         }
     },
@@ -801,6 +799,21 @@
             this.$ul.parent().height() / this.itemHeight
         );
         this.pageHeight = this.itemHeight * itemsPerPage;
+    },
+
+    /**
+     * Shows scrollbar
+     */
+    showScrollbar: function() {
+        this.$el.append(this.$scrollbar, this.$scrollbarBackground);
+    },
+
+    /**
+     * Hides scrollbar
+     */
+    hideScrollbar: function() {
+        this.$scrollbar.detach();
+        this.$scrollbarBackground.detach();
     },
 
     /**
@@ -834,11 +847,11 @@
 
         if ((this.dataProvider.length * this.itemHeight) <= height) {
             if (parent.length > 0) {
-                this.$scrollbar.detach();
+                this.hideScrollbar();
             }
         } else {
             if (parent.length <= 0) {
-                this.$el.append(this.$scrollbar);
+                this.showScrollbar();
             }
             this.$scrollbar.css('top', scrollPosition);
         }
