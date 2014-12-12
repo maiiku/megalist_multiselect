@@ -197,7 +197,7 @@
      * @return {object} - returns target list
      */
     getTargetList: function() {
-        if (this.targetList !== 'object'){
+        if (!(this.targetList instanceof Object)){
             if ( this.suffix === this.conf.SOURCE_SUFFIX) {
                 this.targetList = this.$parent.destinationList;
             } else if ( this.suffix === this.conf.DESTINATION_SUFFIX) {
