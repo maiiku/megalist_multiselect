@@ -107,15 +107,15 @@
 
         //create 2 containers for megalists and buttons between then append
         srcElement = $( '<div/>', {
-            id: this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
-            class: 'megalist-inner'
+            'id': this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
+            'class': 'megalist-inner'
         });
         dstElement = $( '<div/>', {
-            id: this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
-            class: 'megalist-inner'
+            'id': this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
+            'class': 'megalist-inner'
         });
         this.$el.$moveButtons = $( '<div/>', {
-            class: 'move-buttons'
+            'class': 'move-buttons'
         });
         this.$el.append(srcElement, this.$el.$moveButtons, dstElement);
 
@@ -136,19 +136,19 @@
         this.$el.wrap('<div class="megalist"></div>"');
 
         this.$search = $('<input/>', {
-            id: this.$el.attr('id') + '_search',
-            placeholder: this.conf.PLACEHOLDER_TEXT,
-            type: 'text'
+            'id': this.$el.attr('id') + '_search',
+            'placeholder': this.conf.PLACEHOLDER_TEXT,
+            'type': 'text'
         });
         this.$scrollbar = $('<div/>', {
-            id: this.$el.attr('id') + '_scrollbar',
-            class: 'scrollbar'
+            'id': this.$el.attr('id') + '_scrollbar',
+            'class': 'scrollbar'
         });
         this.$scrollbarBackground = $('<div/>', {
-            class: 'scrollbar-background'
+            'class': 'scrollbar-background'
         });
         this.$moveall = $('<div/>', {
-            class: 'move-button ' + arrowIcon
+            'class': 'move-button ' + arrowIcon
         }).append($(
             '<svg width="32" height="32" viewBox="0 0 64 64">' +
             '<use xlink:href="#' + arrowIcon + '"></svg>')
@@ -157,8 +157,8 @@
         this.$parent.$moveButtons.append(this.$moveall );
 
         this.$input = $('<input/>', {
-            name: this.name,
-            type: 'hidden'
+            'name': this.name,
+            'type': 'hidden'
         });
         this.$ul = $('<ul />');
 
@@ -928,7 +928,7 @@
      */
     filterList: function() {
         var self = this,
-            searchQuery = this.$search.val().toLowerCase().trim(),
+            searchQuery = $.trim(this.$search.val().toLowerCase()),
             searchTokens = searchQuery.split(' '),
             isQueryValid = searchQuery.length < this.conf.MINIMUM_SEARCH_QUERY_SIZE,
             i;
@@ -936,7 +936,7 @@
         this.filteredData = [];
 
         for (i = searchTokens.length - 1; i >= 0; i--) {
-            searchTokens[i] = searchTokens[i].trim();
+            searchTokens[i] = $.trim(searchTokens[i]);
         }
 
         if (isQueryValid) {
@@ -1039,3 +1039,5 @@
 
 // injects svg arrow icons into dom
 $(document).ready(function(){$('body').append('<svg style="display: none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"> <path id="arrow-left" d="M48 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771zM32 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771z"></path> <path id="arrow-right" d="M29.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76zM13.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76z"></path></svg>');});
+//adds indexOf to arry prototype for ie8
+$(document).ready(function(){if(!Array.prototype.indexOf){Array.prototype.indexOf=function(e){var t=this.length>>>0;var n=Number(arguments[1])||0;n=n<0?Math.ceil(n):Math.floor(n);if(n<0)n+=t;for(;n<t;n++){if(n in this&&this[n]===e)return n}return-1}}});
