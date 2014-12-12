@@ -5,37 +5,21 @@
   * ========================= */
 
   var Megalist = function(element, $parent) {
-    var srcElement, dstElement, moveButtons;
+    var html;
 
     if ($parent === undefined){
-        //if there's no $parent then we are creating one
-        this.setOptions(element.options);
-
+    //if there's no $parent then we are creating one
         this.$el = element;
-        this.$el.html('');
-        this.$el.addClass('megalist-mutliselect');
-
-        //create 2 containers for megalists and buttons between then append them
-        srcElement = $( '<div/>', {
-            id: this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
-            class: 'megalist-inner'
-        });
-        dstElement = $( '<div/>', {
-            id: this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
-            class: 'megalist-inner'
-        });
-        this.$el.$moveButtons = $( '<div/>', {
-            class: 'move-buttons'
-        });
-        this.$el.append(srcElement, this.$el.$moveButtons, dstElement);
-
+        this.setOptions(this.$el.options);
+        // build HTML
+        html = this.buildParentDOM();
         //source list - data to choose from
-        this.$el.sourceList = new Megalist(srcElement, this.$el);
+        this.$el.sourceList = new Megalist(html.srcElement, this.$el);
         //destination list - data chosen by user
-        this.$el.destinationList = new Megalist(dstElement, this.$el);
+        this.$el.destinationList = new Megalist(html.dstElement, this.$el);
 
     } else {
-        //else just init one of the megalistSide children
+    //else just init one of the megalistSide children
         this.init(element, $parent);
     }
     return this;
@@ -100,6 +84,34 @@
             conf = $.extend(conf, options);
         }
         this.conf = conf;
+    },
+
+
+    /**
+     * Builds required html elements for both source and destination
+     * megalistSide and append them to parent element
+     */
+    buildParentDOM: function() {
+        var srcElement, dstElement;
+
+        this.$el.html('');
+        this.$el.addClass('megalist-mutliselect');
+
+        //create 2 containers for megalists and buttons between then append
+        srcElement = $( '<div/>', {
+            id: this.$el.attr('id') + '_' + this.conf.SOURCE_SUFFIX,
+            class: 'megalist-inner'
+        });
+        dstElement = $( '<div/>', {
+            id: this.$el.attr('id') + '_' + this.conf.DESTINATION_SUFFIX,
+            class: 'megalist-inner'
+        });
+        this.$el.$moveButtons = $( '<div/>', {
+            class: 'move-buttons'
+        });
+        this.$el.append(srcElement, this.$el.$moveButtons, dstElement);
+
+        return {srcElement:srcElement, dstElement:dstElement};
     },
 
     /**
