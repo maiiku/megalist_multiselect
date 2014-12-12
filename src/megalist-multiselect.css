@@ -1,4 +1,8 @@
 .megalist-mutliselect {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   overflow: hidden;
 }
 .megalist-mutliselect .megalist {
@@ -8,6 +12,7 @@
 .megalist-mutliselect .megalist input[type=text] {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
   box-sizing: border-box;
   width: 100% !important;
   padding: 5px 4px;
@@ -16,9 +21,10 @@
 .megalist-mutliselect .megalist .megalist-inner {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
   box-sizing: border-box;
   position: relative;
-  height: 200px;
+  height: 205px;
   width: 100%;
   overflow: hidden;
   border: 1px solid silver;
@@ -48,24 +54,20 @@
   background-color: #08c;
 }
 .megalist-mutliselect .megalist .scrollbar {
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
   position: absolute;
   right: 1px;
-  width: 9px;
+  width: 11px;
   height: 25px;
   background-color: #bebebe;
-  border: 1px solid #b4b4b4;
   z-index: 2;
 }
 .megalist-mutliselect .megalist .scrollbar:hover {
   background-color: #afafaf;
 }
 .megalist-mutliselect .megalist .scrollbar-background {
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
   position: absolute;
   top: 0px;
   right: 0px;

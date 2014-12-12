@@ -50,6 +50,7 @@
         this.yPosition = 0;
         this.filteredData = [];
         this.pageHeight = 0;
+        this.scrollingActive = false;
 
         //init widget
         this.setOptions(this.$parent.options);
@@ -73,7 +74,7 @@
         var conf = {};
 
         // mimimum scrollbar height in pixels
-        conf.SCROLLBAR_MIN_SIZE = 10;
+        conf.SCROLLBAR_MIN_SIZE = 12;
         // inertial delay for megalist ui update after resize event occurs
         conf.RESIZE_TIMEOUT_DELAY = 100;
         // minimum characters to trigger quicksearch filtering
@@ -88,6 +89,10 @@
         conf.SOURCE_SUFFIX = 'src';
         // text to display as search input placeholder
         conf.PLACEHOLDER_TEXT = 'Search';
+        // time to wait for first continous scrolling
+        conf.CONTINOUS_SCROLLING_FIRST_INTERVAL = 500;
+        // time to wait for every next continous scrolling
+        conf.CONTINOUS_SCROLLING_INTERVAL = 60;
 
         if (typeof options === 'object'){
             conf = $.extend(conf, options);
@@ -168,8 +173,6 @@
 
         // Set tabindex, so the element can be in focus
         this.$el.attr('tabindex', '-1');
-        //set new page hight after DOM creation
-        this.pageHeight = this.$ul.parent().height();
     },
 
     /**
@@ -238,8 +241,18 @@
              self.onScrollbarStart(event);
         });
 
-        this.$scrollbarBackground.click(function(event) {
-             self.onScrollbarBackgroundClick(event);
+        this.$scrollbarBackground.mousedown(function(event) {
+            self.scrollingActive = true;
+            self.scrollDir = undefined;
+            self.onScrollbarBackgroundClick(event);
+        });
+
+        this.$scrollbarBackground.mouseleave(function(event) {
+            self.scrollingActive = false;
+        });
+
+        this.$scrollbarBackground.mouseup(function(event) {
+            self.scrollingActive = false;
         });
 
         this.$moveall.click(function(event) {
@@ -605,19 +618,39 @@
      *
      * @param {event} event - scrollbar click event to get coordinates from
      */
-    onScrollbarBackgroundClick: function(event) {
-        //
-        var yOffset = event.offsetY !== undefined ? event.offsetY : event.originalEvent.layerY,
-            scrollbarHeight = $(event.target).height(),
-            clickPosition = yOffset / scrollbarHeight,
+    onScrollbarBackgroundClick: function(event, repeatTimeout) {
+        var self = this,
+            // firefox uses originalEvent.layerY instead of offsetY
+            yOffset = event.offsetY !== undefined ? event.offsetY : event.originalEvent.layerY,
+            scrollbarBackgroundHeight = $(event.target).height(),
+            clickPos = yOffset / scrollbarBackgroundHeight,
             listTotalHeight = this.dataProvider.length * this.itemHeight,
-            currentPosition = this.yPosition / listTotalHeight,
-            offsetToMove = this.pageHeight - this.itemHeight + 5;  // FIXME +5?
+            scrollbarHeightFraction = this.$scrollbar.height() / scrollbarBackgroundHeight,
+            currentPos = this.yPosition / listTotalHeight,
+            offsetToMove = this.pageHeight,
+            shouldMoveUp = clickPos > currentPos + scrollbarHeightFraction,
+            shouldMoveDown = clickPos < currentPos;
 
-        if (clickPosition > currentPosition) {
+        if (!this.scrollingActive) {
+            return;
+        }
+
+        if (this.scrollDir == undefined) {
+            if (shouldMoveUp) {
+                this.scrollDir = 1;
+            } else if (shouldMoveDown) {
+                this.scrollDir = -1;
+            } else {
+                return;
+            }
+        }
+
+        if (shouldMoveUp && this.scrollDir === 1) {
             this.yPosition += offsetToMove;
-        } else{
+        } else if (shouldMoveDown && this.scrollDir === -1) {
             this.yPosition -= offsetToMove;
+        } else {
+            return;
         }
 
         if (this.yPosition > listTotalHeight - this.pageHeight) {
@@ -627,6 +660,17 @@
         }
 
         this.updateLayout();
+
+        if (this.scrollingActive) {
+            if (repeatTimeout === undefined) {
+                repeatTimeout = this.conf.CONTINOUS_SCROLLING_FIRST_INTERVAL;
+            }
+            setTimeout(function() {
+                self.onScrollbarBackgroundClick(
+                    event, self.conf.CONTINOUS_SCROLLING_INTERVAL
+                );
+            }, repeatTimeout);
+        }
     },
 
     /**
@@ -707,9 +751,7 @@
                     this.$ul.append(item);
 
                     if (this.itemHeight <= 0) {
-                        item.html('&nsbp;');
-                        this.$el.append(this.$ul);
-                        this.itemHeight = item.outerHeight();
+                        this.prepareLayout(item);
                         this.updateLayout();
                         return;
                     }
@@ -741,17 +783,40 @@
     },
 
     /**
+     * Prepares layout by appending list to DOM, and calculating site of
+     * element and size of single page
+     *
+     * @param  {object} item    jQuery object representing single item
+     */
+    prepareLayout: function(item) {
+        var itemsPerPage;
+
+        // make sure item have proper height by filling it with content
+        item.html('&nsbp;');
+        this.$el.append(this.$ul);
+
+        // calculate height of item and height of single page
+        this.itemHeight = item.outerHeight();
+        itemsPerPage = Math.floor(
+            this.$ul.parent().height() / this.itemHeight
+        );
+        this.pageHeight = this.itemHeight * itemsPerPage;
+    },
+
+    /**
      * Renders the scrollbar as a part of UI update when list is scrolled or
      * modified
      */
     updateScrollBar: function() {
         var height = this.$el.height(),
             maxScrollbarHeight = height,
-            maxItemsHeight = (this.dataProvider.length) * this.itemHeight,
+            maxItemsHeight = this.dataProvider.length * this.itemHeight,
             targetHeight = maxScrollbarHeight * Math.min(
                 maxScrollbarHeight / maxItemsHeight, 1
             ),
-            actualHeight = Math.max(targetHeight, this.conf.SCROLLBAR_MIN_SIZE),
+            actualHeight = Math.floor(
+                Math.max(targetHeight, this.conf.SCROLLBAR_MIN_SIZE)
+            ),
             scrollPosition = (
                 this.yPosition / (maxItemsHeight - height) *
                 (maxScrollbarHeight - actualHeight)
@@ -1035,9 +1100,11 @@
     return this;
   };
 
-} (window.jQuery);
+  // injects svg arrow icons into dom
+  $(document).ready(function(){
+    $('body').append('<svg style="display: none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"> <path id="arrow-left" d="M48 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771zM32 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771z"></path> <path id="arrow-right" d="M29.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76zM13.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76z"></path></svg>');});
 
-// injects svg arrow icons into dom
-$(document).ready(function(){$('body').append('<svg style="display: none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"> <path id="arrow-left" d="M48 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771zM32 10.667q1.104 0 1.885 0.781t0.781 1.885-0.792 1.896l-16.771 16.771 16.771 16.771q0.792 0.792 0.792 1.896t-0.781 1.885-1.885 0.781q-1.125 0-1.896-0.771l-18.667-18.667q-0.771-0.771-0.771-1.896t0.771-1.896l18.667-18.667q0.771-0.771 1.896-0.771z"></path> <path id="arrow-right" d="M29.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76zM13.333 10.667q1.104 0 1.875 0.771l18.667 18.667q0.792 0.792 0.792 1.896t-0.792 1.896l-18.667 18.667q-0.771 0.771-1.875 0.771t-1.885-0.781-0.781-1.885q0-1.125 0.771-1.896l16.771-16.771-16.771-16.771q-0.771-0.771-0.771-1.896 0-1.146 0.76-1.906t1.906-0.76z"></path></svg>');});
-//adds indexOf to arry prototype for ie8
-$(document).ready(function(){if(!Array.prototype.indexOf){Array.prototype.indexOf=function(e){var t=this.length>>>0;var n=Number(arguments[1])||0;n=n<0?Math.ceil(n):Math.floor(n);if(n<0)n+=t;for(;n<t;n++){if(n in this&&this[n]===e)return n}return-1}}});
+  //adds indexOf to arry prototype for ie8
+  if(!Array.prototype.indexOf){Array.prototype.indexOf=function(e){var t=this.length>>>0;var n=Number(arguments[1])||0;n=n<0?Math.ceil(n):Math.floor(n);if(n<0)n+=t;for(;n<t;n++){if(n in this&&this[n]===e)return n}return-1}}
+
+} (window.jQuery);

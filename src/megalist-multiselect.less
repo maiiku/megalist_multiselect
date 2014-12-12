@@ -1,6 +1,7 @@
 .box-sizing(@boxmodel) {
   -webkit-box-sizing: @boxmodel;
      -moz-box-sizing: @boxmodel;
+      -ms-box-sizing: @boxmodel;
           box-sizing: @boxmodel;
 }
 .border-radius(@radius) {
@@ -8,9 +9,16 @@
        -moz-border-radius: @radius;
             border-radius: @radius;
 }
+.user-select(@select) {
+    -webkit-user-select: @select;
+       -moz-user-select: @select;
+        -ms-user-select: @select;
+            user-select: @select;
+}
 
 @icon-move-color: rgb(3, 116, 187);
 .megalist-mutliselect {
+    .user-select(none);
     overflow: hidden;
     .megalist {
         float: left;
@@ -25,7 +33,7 @@
             .box-sizing(border-box);
             overflow: hidden;
             position: relative;
-            height: 200px;
+            height: 205px;
             width: 100%;
             overflow: hidden;
             border: 1px solid silver;
@@ -55,20 +63,18 @@
             }
         }
         .scrollbar {
-            .border-radius(2px);
+            .border-radius(3px);
             position: absolute;
             right: 1px;
-            width: 9px;
+            width: 11px;
             height: 25px;
             background-color: rgb(190, 190, 190);
-            border: 1px solid rgba(180, 180, 180, 1);
             z-index: 2;
             &:hover {
                 background-color: rgb(175, 175, 175);
             }
         }
         .scrollbar-background {
-            .border-radius(2px);
             position: absolute;
             top: 0px;
             right: 0px;
