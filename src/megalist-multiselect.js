@@ -95,7 +95,6 @@
         this.conf = conf;
     },
 
-
     /**
      * Builds required html elements for both source and destination
      * megalistSide and append them to parent element
@@ -412,8 +411,6 @@
     /**
      * Updates megalistSide widget on mouse scroll event
      * only concerned about vertical scroll
-     * scroll wheel logic from jquery.mousewheel.js, project page at
-     * https://github.com/brandonaaron/jquery-mousewheel
      *
      * @param {event} event - mouse wheel event
      */
@@ -525,7 +522,7 @@
     },
 
     /**
-     * Handles drag event on scrollbar - binds events apporpoarate to user
+     * Handles drag event on scrollbar - binds events appropriate to user
      * action and delgates event to correct function
      *
      * @param {event} event - mouse event on scrollbar
@@ -603,12 +600,13 @@
     },
 
     /**
-     * Handles click event on scroll bar backgoround - a click on scrollbar
+     * Handles click event on scrollbar background - a click on scrollbar
      * background should cause pageUp/PageDown action on the viewport
      *
      * @param {event} event - scrollbar click event to get coordinates from
      */
     onScrollbarBackgroundClick: function(event) {
+        //
         var yOffset = event.offsetY !== undefined ? event.offsetY : event.originalEvent.layerY,
             scrollbarHeight = $(event.target).height(),
             clickPosition = yOffset / scrollbarHeight,
@@ -633,7 +631,7 @@
 
     /**
      * Removes items rendered in megalist that no longer fit into the viewport
-     * and removed them form processed items cache
+     * and removes them from processed items cache
      */
     cleanupListItems: function() {
         //remove any remaining LI elements hanging out on the dom
@@ -854,8 +852,8 @@
     },
 
     /**
-     * Clears currently slected object by removing styling and setting internal
-     * variable pointing to currently selected item to -1
+     * Clears currently selected object by removing styling and setting
+     * internal variable pointing to currently selected item to -1
      *
      */
     clearSelectedIndex: function() {
@@ -921,6 +919,13 @@
         return this.dataProvider;
     },
 
+    /**
+     * Parses search input and performs filtering of list. The algorithm
+     * splits the search query to tokens and seeks for all subsequent
+     * tokens in the data. If not all tokens are found in the data then this
+     * record is excluded from the results.
+     *
+     */
     filterList: function() {
         var self = this,
             searchQuery = this.$search.val().toLowerCase().trim(),
@@ -949,6 +954,15 @@
         this.updateLayout();
     },
 
+    /**
+     * Tests if element of list data meets the query search criterias.
+     *
+     * @param  {string} val          value of the element to test
+     * @param  {array}  searchTokens query search tokens
+     * @param  {int}    index        the index of element in original data
+     *
+     * @return {boolean}             whether element meets the criteria on not
+     */
     testListElement: function(val, searchTokens, index) {
         var tokenIndex = 0,
             valI = 0,
