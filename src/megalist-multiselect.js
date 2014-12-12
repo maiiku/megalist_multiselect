@@ -546,11 +546,11 @@
         this.unbindScrollbarEvents();
         this.scrollbarInputCoordinates = this.getInputCoordinates(event);
 
-        $(window).bind('mousemove', function(event) {
+        $(document).bind('mousemove', function(event) {
              self.onScrollbarMove(event);
         });
 
-        $(window).bind('mouseup', function() {
+        $(document).bind('mouseup', function() {
              self.unbindScrollbarEvents();
         });
 
@@ -608,8 +608,8 @@
      *
      */
     unbindScrollbarEvents: function() {
-        $(window).unbind('mousemove');
-        $(window).unbind('mouseup');
+        $(document).unbind('mousemove');
+        $(document).unbind('mouseup');
     },
 
     /**
