@@ -3,11 +3,11 @@ MegaList Multiselect
 
 ## Introduction
 
-megalist_multiselect is a jQuery multi-select plugin based on [MegaList by triceam](https://github.com/triceam/MegaList). It creates a lists of components capable of exchanging components between them - by default, id ```_src``` and ```_dst``` suffixes are used to match source and destination lists. Plugin is capable of very large datasets unlike as it does not render all elements of the list.
+megalist_multiselect is a jQuery multi-select plugin based on [MegaList by triceam](https://github.com/triceam/MegaList). It creates two megalists that can exchange elements between them, a source and destination list. The destination lists generates input with user selection. Plugin is capable of very large datasets unlike usual select with multiple attribute as it only renders what users sees at any given moments.
 
 For performance optimizations, the list component uses data virtualization techniques, so there are never more list elements in the HTML DOM than what is currently visible on the screen. As the user scrolls through content, the list updates the DOM elements accordingly. This makes scrolling lists of thousands of items extremely fluid.
 
-There are two methods that the list component can be used.  One option is to declare the list structure in HTML markup, another option is to specify a dataProvider JSON array, from which the list will create DOM elements.
+Plugin can be fed with two types of data: JSON object array or currently used select HTML.
     
 Demo multiselect Created With A DataProvider of 100,000 items:
 * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/01_megalist_multiselect_demo.html)
@@ -21,48 +21,84 @@ Demo multiselect Created With A DataProvider of 100,000 items:
 <table>
 <thead>
  <tr>
-   <th style="width: 150px;">Event</th>
+   <th style="width: 150px;">Method</th>
    <th>Description</th>
  </tr>
 </thead>
 <tbody>
  <tr>
-   <td>.megalist()</td>
-   <td>Initializes a list component.</td>
+   <td>.megalist(options)</td>
+   <td>Initializes a list component. Takes option object as optional argument</td>
  </tr>
- <tr>
-   <td>.megalist('setDataProvider', dataProviderArray)</td>
-   <td>Sets the data provider function that should return (data source) JSON array for the list instance.  There is no concrete limit on the length of the data provider array.</td>
- </tr>
- <tr>
-   <td>.megalist('setLabelFunction', labelFunction)</td>
-   <td>Sets the function to be used to build list element from provided data. If not set JSON is assumed to contain `label` and `listValue` for multiselect elements names and values</td>
- </tr>
- <tr>
-   <td>.megalist('setSelectedIndex', index)</td>
-   <td>Set the item at selected index as selected.</td>
- </tr>
- <tr>
-   <td>.megalist('getSelectedIndex', index)</td>
-   <td>Returns the currently selected index.  If no list item is selected, returns -1.</td>
- </tr>
- <tr>
-   <td>.megalist('clearSelectedIndex', index)</td>
-   <td>Clears the currently selected item in the list.</td>
-</tr>
-<tr>
-   <td>.megalist('updateDataProvider', newElement)</td>
-   <td>Adds new elements to the list - accpets isngle JSON object or array of objects.</td>
-</tr>
-<tr>
-   <td>.megalist('getDataProvider', newElement)</td>
-   <td>Returns current element list as array of JSON objects.</td>
-</tr>
+ </tbody>
+ </table>
 
-</table>
+### Options
+
+<table>
+<thead>
+ <tr>
+   <th style="width: 150px;">Option</th>
+   <th>Default</th>
+   <th>Description</th>
+ </tr>
+</thead>
+<tbody>
+ <tr>
+   <td>SCROLLBAR_MIN_SIZE</td>
+   <td>12</td>
+   <td>sets the minimum height of the scrollbar in pixels</td>
+ </tr>
+  <tr>
+   <td>RESIZE_TIMEOUT_DELAY</td>
+   <td>100</td>
+   <td>inertial delay (in ms) for megalist ui update after resize event occurs</td>
+ </tr>
+  <tr>
+   <td>MINIMUM_SEARCH_QUERY_SIZE</td>
+   <td>3</td>
+   <td>minimum characters to trigger quicksearch filtering</td>
+ </tr>
+  <tr>
+   <td>BUILD_FULL_POST</td>
+   <td>true</td>
+   <td>specifies if result should be build as full or simple (comma separated ids) post. Simple is faster.</td>
+ </tr>
+  <tr>
+   <td>MOVE_ACTION_NAME</td>
+   <td>move</td>
+   <td>move action event name to trigger</td>
+ </tr>
+  <tr>
+   <td>SOURCE_SUFFIX</td>
+   <td>src</td>
+   <td>functional suffixes for multiselect: source list suffix</td>
+ </tr>
+   <tr>
+   <td>DESTINATION_SUFFIX</td>
+   <td>dst</td>
+   <td>functional suffixes for multiselect: destination list suffixr</td>
+ </tr>
+    <tr>
+   <td>PLACEHOLDER_TEXT</td>
+   <td>Search</td>
+   <td>text to display as search input placeholder</td>
+ </tr>
+    <tr>
+   <td>CONTINOUS_SCROLLING_FIRST_INTERVAL</td>
+   <td>500</td>
+   <td>time to wait for first continous scrolling (in ms)</td>
+ </tr>
+    <tr>
+   <td>CONTINOUS_SCROLLING_INTERVAL</td>
+   <td>60</td>
+   <td>time to wait between continous scrolling (in ms)</td>
+ </tr>
+ </tbody>
+ </table>
 
 ### Events
-Megalist exposes a change event for handling when the selected item in the list changes.
+Megalist exposes a move event for handling when the selected item is moved between lists.
           
 <table>
 <thead>
@@ -72,18 +108,9 @@ Megalist exposes a change event for handling when the selected item in the list 
  </tr>
 </thead>
 <tbody>
- <tr>
-   <td>change</td>
-   <td>This event is fired when the selected item in the list is changed.  You can access details of the selected item in the list by accessing attributes of the event.  
-    <strong>event.index</strong>
-    The numeric index for the item in the list that was clicked/touched.
-    <strong>event.srcElement</strong>
-    A jQuery reference to the list item that was clicked/touched.
-    <strong>event.item</strong>
-    A reference to the data item for the list item.  If using inline &lt;li&gt; in markup, this will be the same DOM element as event.srcElement.  If using a dataProvider, it will be the object in the dataProvider array corresponding to the selected list item.</td>
- </tr>
   <tr>
    <td>move</td>
    <td>This event is fired when item is clicked and destination list is present. It sends the selected item to destination list, updating both lists in process.
  </tr>
+</tbody>
 </table>
