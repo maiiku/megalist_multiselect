@@ -601,7 +601,7 @@
         this.scrollbarInputCoordinates = newCoordinates;
 
         newYPosition = (
-            yPosition / (height - scrollbarHeight) *
+            yPosition / height *
             (this.itemHeight * this.dataProvider.length - 1)
         );
         newYPosition = Math.max(0, newYPosition);
