@@ -93,21 +93,22 @@
 .megalist-mutliselect .move-buttons .move-button:hover svg {
   fill: #024570;
 }
-.megalist-mutliselect .move-buttons .move-button:hover.arrow-left.no-svg svg {
+.megalist-mutliselect .move-buttons .move-button:hover.arrow-left.no-svg .svg {
   background-position: 0% 100%;
 }
-.megalist-mutliselect .move-buttons .move-button:hover.arrow-right.no-svg svg {
+.megalist-mutliselect .move-buttons .move-button:hover.arrow-right.no-svg .svg {
   background-position: 100% 100%;
 }
-.megalist-mutliselect .move-buttons .move-button.no-svg svg {
+.megalist-mutliselect .move-buttons .move-button.no-svg .svg {
   background-repeat: no-repeat;
   background-position: center;
   background: url('../icons/megalist-icons.png');
-  background-size: 200%;
+  width: 32px;
+  height: 32px;
 }
-.megalist-mutliselect .move-buttons .move-button.arrow-left.no-svg svg {
+.megalist-mutliselect .move-buttons .move-button.arrow-left.no-svg .svg {
   background-position: 0% 0%;
 }
-.megalist-mutliselect .move-buttons .move-button.arrow-right.no-svg svg {
+.megalist-mutliselect .move-buttons .move-button.arrow-right.no-svg .svg {
   background-position: 100% 0%;
 }

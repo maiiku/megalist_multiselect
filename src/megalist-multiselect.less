@@ -100,23 +100,24 @@
                 svg {
                     fill: darken(@icon-move-color, 15%);
                 }
-                &.arrow-left.no-svg svg {
+                &.arrow-left.no-svg .svg {
                     background-position: 0% 100%;
                 }
-                &.arrow-right.no-svg svg {
+                &.arrow-right.no-svg .svg {
                     background-position: 100% 100%;
                 }
             }
-            &.no-svg svg {
+            &.no-svg .svg {
                 background-repeat: no-repeat;
                 background-position: center;
                 background: url('../icons/megalist-icons.png');
-                background-size: 200%;
+                width: 32px;
+                height: 32px;
             }
-            &.arrow-left.no-svg svg {
+            &.arrow-left.no-svg .svg {
                 background-position: 0% 0%;
             }
-            &.arrow-right.no-svg svg {
+            &.arrow-right.no-svg .svg {
                 background-position: 100% 0%;
             }
         }

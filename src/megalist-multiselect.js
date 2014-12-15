@@ -155,16 +155,20 @@
         });
         this.$moveall = $('<div/>', {
             'class': 'move-button ' + arrowIcon
-        }).append($(
-            '<svg width="32" height="32" viewBox="0 0 64 64">' +
-            '<use xlink:href="#' + arrowIcon + '"></svg>'
-        ));
+        });
+
+        if (Modernizr.svg) {
+            this.$moveall.append($(
+                '<svg width="32" height="32" viewBox="0 0 64 64">' +
+                '<use xlink:href="#' + arrowIcon + '"></svg>'
+            ));
+        } else {
+            this.$moveall.addClass('no-svg');
+            this.$moveall.append($('<div class="svg" />'));
+        }
+
         //attach to container in parent
         this.$parent.$moveButtons.append(this.$moveall);
-
-        if (!Modernizr.svg) {
-            this.$moveall.addClass('no-svg');
-        }
 
         this.$input = $('<input/>', {
             'name': this.name,
@@ -1015,7 +1019,7 @@
         var height = this.$el.height(),
             totalHeight = this.dataProvider.length * this.itemHeight;
 
-        return totalHeight - height;
+        return totalHeight > height ? totalHeight - height : 0;
     },
 
     /**
