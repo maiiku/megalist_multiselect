@@ -78,7 +78,7 @@
         // inertial delay for megalist ui update after resize event occurs
         conf.RESIZE_TIMEOUT_DELAY = 100;
         // minimum characters to trigger quicksearch filtering
-        conf.MINIMUM_SEARCH_QUERY_SIZE = 2;
+        conf.MINIMUM_SEARCH_QUERY_SIZE = 3;
         // build full or simple (comma separated ids) post
         conf.BUILD_FULL_POST = true;
         // move action event name to trigger
