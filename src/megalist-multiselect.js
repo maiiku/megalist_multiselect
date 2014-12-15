@@ -1070,16 +1070,21 @@
     testListElement: function(val, searchTokens, index) {
         var tokenIndex = 0,
             valI = 0,
+            tokenDetected = true,
             i;
         val = val.label.toLowerCase();
         while (valI < val.length) {
             if (val[valI++] === searchTokens[tokenIndex][0]) {
+                tokenDetected = true;
                 for (i = 1; i < searchTokens[tokenIndex].length; i++) {
-                    if (val[valI++] !== searchTokens[tokenIndex][i]) {
-                        return false;
+                    if (val[valI] === searchTokens[tokenIndex][i]) {
+                        valI++;
+                    } else {
+                        tokenDetected = false;
+                        break;
                     }
                 }
-                if (++tokenIndex === searchTokens.length) {
+                if (tokenDetected && ++tokenIndex === searchTokens.length) {
                     this.filteredData[this.filteredData.length] = index;
                     return true;
                 }
