@@ -345,6 +345,7 @@
             totalHeight = this.dataProvider.length * this.itemHeight,
             maxPosition = totalHeight - this.$el.height();
 
+        maxPosition = Math.max(0, maxPosition);
         this.yPosition = Math.min(this.yPosition, maxPosition);
         this.reizeTimeout = setTimeout(function() {
             self.updateLayout();
