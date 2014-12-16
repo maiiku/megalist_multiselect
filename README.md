@@ -8,10 +8,23 @@ megalist_multiselect is a jQuery multi-select plugin based on [MegaList by trice
 For performance optimizations, the list component uses data virtualization techniques, so there are never more list elements in the HTML DOM than what is currently visible on the screen. As the user scrolls through content, the list updates the DOM elements accordingly. This makes scrolling lists of thousands of items extremely fluid.
 
 Plugin can be fed with two types of data: JSON object array or currently used select HTML.
-    
-Demo multiselect Created With A DataProvider of 100,000 items:
-* [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/01_megalist_multiselect_demo.html)
-* [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/01_megalist_multiselect_demo.html)
+
+## Examples    
+* Demo multiselect created with a json DataProvider of 100,000 items
+    * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/01_megalist_multiselect_demo_json.html)
+    * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/01_megalist_multiselect_demo_json.html)  
+* Demo multiselect created with a select tag DataProvider of 1000 items
+    * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/02_megalist_multiselect_demo_select.html)
+    * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/02_megalist_multiselect_demo_select.html)
+* Demo multiselect generating simply POST data
+    * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/03_megalist_multiselect_demo_simply_post.html)
+    * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/03_megalist_multiselect_demo_simply_post.html)
+* Demo multiselect generating full POST data
+    * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/04_megalist_multiselect_demo_full_post.html)
+    * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/04_megalist_multiselect_demo_full_post.html)
+* Demo multiselect Created With a json DataProvider of one milion items
+    * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/05_megalist_multiselect_demo_milion.html)
+    * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/05_megalist_multiselect_demo_milion.html)
 
 
 ## API
