@@ -41,7 +41,7 @@
                 '<option value="' + x + '"' + selected + ' > item ' + x + '</option>'
             );
         }
-        return (result);
+        return result;
     }
     </script>
 
@@ -64,24 +64,32 @@
 
     <h4>Script</h4>
     <pre class="prettyprint linenums">
-        $(document).ready(function() {
+    $(document).ready(function() {
         var options = {
             PLACEHOLDER_TEXT: "Search Items"
-        };
-        $('#my_megalist').attr('data-provider-src', "&lt;select multiple&gt; " + createDataProviderSelect().join('') + " &lt;/select&gt;");
-        $('#my_megalist').attr('data-provider-dst', "&lt;select multiple&gt; " + createDataProviderSelect().join('') + " &lt;/select&gt;");
+        },
+            select = "&lt;select multiple&gt; " + createDataProviderSelect().join('') + " &lt;/select&gt;";
+
+        $('#my_megalist').attr('data-provider-src', select);
+        $('#my_megalist').attr('data-provider-dst', select);
         $('#my_megalist').megalist(options);
     });
 
     function createDataProviderSelect() {
         var result = [],
-            quantity = 5000;
+            quantity = 1000,
+            selected;
         for (x = 0; x &lt; quantity; x++) {
+            if (Math.random() &gt; 0.95) {
+                selected = 'selected';
+            } else {
+                selected = '';
+            }
             result.push(
-                '&lt;option value="' + x + '" &gt; item ' + x + '&lt;/option&gt;'
+                '&lt;option value="' + x + '"' + selected + ' &gt; item ' + x + '&lt;/option&gt;'
             );
         }
-        return (result);
+        return result;
     }
     </pre>
 
