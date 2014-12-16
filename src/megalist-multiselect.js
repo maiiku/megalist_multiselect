@@ -747,7 +747,6 @@
 
         if (this.dataProvider.length > 0) {
             this.$ul.detach();
-            //this.setItemPosition(this.$ul, 0, 0);
             this.processedItems = {};
 
             while (i * this.itemHeight < maxHeight) {
