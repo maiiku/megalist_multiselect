@@ -584,6 +584,8 @@
             scrollbarHeight = this.$scrollbar.height(),
             yDelta = this.scrollbarInputCoordinates.y - newCoordinates.y,
             yPosition = parseInt(this.$scrollbar.css('top'), 10),
+            usingMinSize = scrollbarHeight === this.conf.SCROLLBAR_MIN_SIZE,
+            heightOffset = usingMinSize ? scrollbarHeight : 0,
             newYPosition;
 
         // valid move occurs only when pressing left mouse button
@@ -596,12 +598,13 @@
 
         yPosition = Math.max(yPosition, 0);
         yPosition = Math.min(yPosition, height - scrollbarHeight);
+        yPosition = Math.min(yPosition, height);
 
         this.$scrollbar.css('top', yPosition);
         this.scrollbarInputCoordinates = newCoordinates;
 
         newYPosition = (
-            yPosition / height *
+            yPosition / (height - heightOffset) *
             (this.itemHeight * this.dataProvider.length - 1)
         );
         newYPosition = Math.max(0, newYPosition);
