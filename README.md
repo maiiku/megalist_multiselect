@@ -22,7 +22,7 @@ Plugin can be fed with two types of data: JSON object array or currently used se
 * Demo multiselect generating full POST data
     * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/04_megalist_multiselect_demo_full_post.html)
     * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/04_megalist_multiselect_demo_full_post.html)
-* Demo multiselect Created With a json DataProvider of one milion items
+* Demo multiselect Created With a json DataProvider of **one milion items**
     * [Online Demo](http://maiiku.github.io/megalist_multiselect/samples/05_megalist_multiselect_demo_milion.html)
     * [View Source](https://github.com/maiiku/megalist_multiselect/blob/master/samples/05_megalist_multiselect_demo_milion.html)
 
