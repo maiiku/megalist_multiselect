@@ -80,7 +80,7 @@
         // minimum characters to trigger quicksearch filtering
         conf.MINIMUM_SEARCH_QUERY_SIZE = 3;
         // build full or simple (comma separated ids) post
-        conf.BUILD_FULL_POST = true;
+        conf.BUILD_FULL_POST = false;
         // move action event name to trigger
         conf.MOVE_ACTION_NAME = 'move';
         //functional suffixes for multiselect: destination list suffix
