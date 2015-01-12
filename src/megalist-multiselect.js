@@ -540,7 +540,7 @@
             for (i = this.filteredData.length - 1; i >= 0; i--) {
                 this.dataProviderOrig.splice(this.filteredData[i], 1);
             }
-        } else {
+        } else if (!this.searchingIsActive()) {
             this.dataProviderOrig = [];
         }
         this.$parent.destinationList.generatePOST(this.conf.BUILD_FULL_POST);
@@ -1026,6 +1026,16 @@
     },
 
     /**
+     * Checks if search input has minimal length and therefor searching  is
+     * active.
+     * @return {bool} true when searching is active, false otherwise
+     */
+    searchingIsActive: function() {
+        var querySize = $.trim(this.$search.val()).length;
+        return querySize >= this.conf.MINIMUM_SEARCH_QUERY_SIZE;
+    },
+
+    /**
      * Parses search input and performs filtering of list. The algorithm
      * splits the search query to tokens and seeks for all subsequent
      * tokens in the data. If not all tokens are found in the data then this
@@ -1036,7 +1046,6 @@
         var self = this,
             searchQuery = $.trim(this.$search.val().toLowerCase()),
             searchTokens = searchQuery.split(' '),
-            isQueryValid = searchQuery.length < this.conf.MINIMUM_SEARCH_QUERY_SIZE,
             i;
 
         this.filteredData = [];
@@ -1045,7 +1054,7 @@
             searchTokens[i] = $.trim(searchTokens[i]);
         }
 
-        if (isQueryValid) {
+        if (!this.searchingIsActive()) {
             this.dataProvider = this.dataProviderOrig;
 
         } else {
