@@ -232,7 +232,9 @@
         });
 
         this.$el.mousedown(function() {
-            this.focus();
+            setTimeout(function(){
+                this.focus();
+            }, 1);
         });
 
         this.$el.bind('mousewheel DOMMouseScroll', function(event) {
