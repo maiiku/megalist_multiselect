@@ -221,7 +221,8 @@
      * Binds all events need by the widget
      */
     bindEvents: function() {
-        var self = this;
+        var self = this,
+            filterEvent;
 
        $(window).resize(function(event){
             return self.onResize(event);
@@ -268,7 +269,13 @@
             self.onMoveAll(event);
         });
 
-        this.$search.on('keyup', function() {
+        if (Modernizr.hasEvent('input', this.$search)) {
+            filterEvent = 'input';
+        } else {
+            filterEvent = 'keyup';
+        }
+
+        this.$search.on(filterEvent, function() {
             self.yPosition = 0;
             self.filterList();
         });
